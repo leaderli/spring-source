@@ -16,8 +16,8 @@
 
 package org.springframework.context.index.processor;
 
-import java.util.Set;
 import javax.lang.model.element.Element;
+import java.util.Set;
 
 /**
  * Provide the list of stereotypes that match an {@link Element}.
@@ -29,11 +29,12 @@ import javax.lang.model.element.Element;
  */
 interface StereotypesProvider {
 
-	/**
-	 * Return the stereotypes that are present on the given {@link Element}.
-	 * @param element the element to handle
-	 * @return the stereotypes or an empty set if none were found
-	 */
-	Set<String> getStereotypes(Element element);
+    /**
+     * Return the stereotypes that are present on the given {@link Element}.
+     *
+     * @param element the element to handle
+     * @return the stereotypes or an empty set if none were found
+     */
+    Set<String> getStereotypes(Element element);
 
 }

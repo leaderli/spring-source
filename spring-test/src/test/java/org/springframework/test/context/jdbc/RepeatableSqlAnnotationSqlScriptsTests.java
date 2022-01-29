@@ -16,15 +16,14 @@
 
 package org.springframework.test.context.jdbc;
 
-import java.lang.annotation.Repeatable;
-
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+import java.lang.annotation.Repeatable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,24 +41,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class RepeatableSqlAnnotationSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Test
-	// test##_ prefix is required for @FixMethodOrder.
-	public void test01_classLevelScripts() {
-		assertNumUsers(1);
-	}
+    @Test
+    // test##_ prefix is required for @FixMethodOrder.
+    public void test01_classLevelScripts() {
+        assertNumUsers(1);
+    }
 
-	@Test
-	@Sql("drop-schema.sql")
-	@Sql("schema.sql")
-	@Sql("data.sql")
-	@Sql("data-add-dogbert.sql")
-	// test##_ prefix is required for @FixMethodOrder.
-	public void test02_methodLevelScripts() {
-		assertNumUsers(2);
-	}
+    @Test
+    @Sql("drop-schema.sql")
+    @Sql("schema.sql")
+    @Sql("data.sql")
+    @Sql("data-add-dogbert.sql")
+    // test##_ prefix is required for @FixMethodOrder.
+    public void test02_methodLevelScripts() {
+        assertNumUsers(2);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+    protected void assertNumUsers(int expected) {
+        assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+    }
 
 }

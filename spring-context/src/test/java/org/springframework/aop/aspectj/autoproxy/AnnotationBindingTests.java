@@ -18,7 +18,6 @@ package org.springframework.aop.aspectj.autoproxy;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,26 +28,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AnnotationBindingTests {
 
-	private AnnotatedTestBean testBean;
+    private AnnotatedTestBean testBean;
 
 
-	@Before
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
-		testBean = (AnnotatedTestBean) ctx.getBean("testBean");
-	}
+    @Before
+    public void setup() {
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+        testBean = (AnnotatedTestBean) ctx.getBean("testBean");
+    }
 
 
-	@Test
-	public void testAnnotationBindingInAroundAdvice() {
-		assertThat(testBean.doThis()).isEqualTo("this value");
-		assertThat(testBean.doThat()).isEqualTo("that value");
-	}
+    @Test
+    public void testAnnotationBindingInAroundAdvice() {
+        assertThat(testBean.doThis()).isEqualTo("this value");
+        assertThat(testBean.doThat()).isEqualTo("that value");
+    }
 
-	@Test
-	public void testNoMatchingWithoutAnnotationPresent() {
-		assertThat(testBean.doTheOther()).isEqualTo("doTheOther");
-	}
+    @Test
+    public void testNoMatchingWithoutAnnotationPresent() {
+        assertThat(testBean.doTheOther()).isEqualTo("doTheOther");
+    }
 
 }

@@ -16,10 +16,10 @@
 
 package example.scannable;
 
-import java.util.concurrent.Future;
-
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Indexed;
+
+import java.util.concurrent.Future;
 
 /**
  * @author Mark Fisher
@@ -28,11 +28,11 @@ import org.springframework.stereotype.Indexed;
 @Indexed
 public interface FooService {
 
-	String foo(int id);
+    String foo(int id);
 
-	@Async
-	Future<String> asyncFoo(int id);
+    @Async
+    Future<String> asyncFoo(int id);
 
-	boolean isInitCalled();
+    boolean isInitCalled();
 
 }

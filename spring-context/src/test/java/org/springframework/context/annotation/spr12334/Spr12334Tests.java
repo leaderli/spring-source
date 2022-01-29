@@ -17,7 +17,6 @@
 package org.springframework.context.annotation.spr12334;
 
 import org.junit.Test;
-
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -31,39 +30,39 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 public class Spr12334Tests {
 
-	@Test
-	public void shouldNotScanTwice() {
-		TestImport.scanned = false;
+    @Test
+    public void shouldNotScanTwice() {
+        TestImport.scanned = false;
 
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.scan(TestImport.class.getPackage().getName());
-		context.refresh();
-		context.getBean(TestConfiguration.class);
-	}
-
-
-	@Import(TestImport.class)
-	public @interface AnotherImport {
-	}
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.scan(TestImport.class.getPackage().getName());
+        context.refresh();
+        context.getBean(TestConfiguration.class);
+    }
 
 
-	@Configuration
-	@AnotherImport
-	public static class TestConfiguration {
-	}
+    @Import(TestImport.class)
+    public @interface AnotherImport {
+    }
 
 
-	public static class TestImport implements ImportBeanDefinitionRegistrar {
+    @Configuration
+    @AnotherImport
+    public static class TestConfiguration {
+    }
 
-		private static boolean scanned = false;
 
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry)  {
-			if (scanned) {
-				throw new IllegalStateException("Already scanned");
-			}
-			scanned = true;
-		}
-	}
+    public static class TestImport implements ImportBeanDefinitionRegistrar {
+
+        private static boolean scanned = false;
+
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+            if (scanned) {
+                throw new IllegalStateException("Already scanned");
+            }
+            scanned = true;
+        }
+    }
 
 }

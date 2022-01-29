@@ -16,10 +16,10 @@
 
 package org.springframework.web.socket.messaging;
 
-import java.security.Principal;
-
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
+
+import java.security.Principal;
 
 /**
  * Event raised when a new WebSocket client using a Simple Messaging Protocol
@@ -35,17 +35,18 @@ import org.springframework.messaging.Message;
 @SuppressWarnings("serial")
 public class SessionConnectEvent extends AbstractSubProtocolEvent {
 
-	/**
-	 * Create a new SessionConnectEvent.
-	 * @param source the component that published the event (never {@code null})
-	 * @param message the connect message
-	 */
-	public SessionConnectEvent(Object source, Message<byte[]> message) {
-		super(source, message);
-	}
+    /**
+     * Create a new SessionConnectEvent.
+     *
+     * @param source  the component that published the event (never {@code null})
+     * @param message the connect message
+     */
+    public SessionConnectEvent(Object source, Message<byte[]> message) {
+        super(source, message);
+    }
 
-	public SessionConnectEvent(Object source, Message<byte[]> message, @Nullable Principal user) {
-		super(source, message, user);
-	}
+    public SessionConnectEvent(Object source, Message<byte[]> message, @Nullable Principal user) {
+        super(source, message, user);
+    }
 
 }

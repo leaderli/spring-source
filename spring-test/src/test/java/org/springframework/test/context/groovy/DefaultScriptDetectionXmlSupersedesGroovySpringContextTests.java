@@ -18,7 +18,6 @@ package org.springframework.test.context.groovy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,13 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 public class DefaultScriptDetectionXmlSupersedesGroovySpringContextTests {
 
-	@Autowired
-	protected String foo;
+    @Autowired
+    protected String foo;
 
 
-	@Test
-	public final void foo() {
-		assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Foo");
-	}
+    @Test
+    public final void foo() {
+        assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Foo");
+    }
 
 }

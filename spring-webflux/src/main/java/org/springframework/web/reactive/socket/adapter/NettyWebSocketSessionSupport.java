@@ -16,16 +16,8 @@
 
 package org.springframework.web.reactive.socket.adapter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-
+import io.netty.handler.codec.http.websocketx.*;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.util.ObjectUtils;
@@ -33,67 +25,66 @@ import org.springframework.web.reactive.socket.HandshakeInfo;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Base class for Netty-based {@link WebSocketSession} adapters that provides
  * convenience methods to convert Netty {@link WebSocketFrame WebSocketFrames} to and from
  * {@link WebSocketMessage WebSocketMessages}.
  *
+ * @param <T> the native delegate type
  * @author Rossen Stoyanchev
  * @since 5.0
- * @param <T> the native delegate type
  */
 public abstract class NettyWebSocketSessionSupport<T> extends AbstractWebSocketSession<T> {
 
-	/**
-	 * The default max size for inbound WebSocket frames.
-	 */
-	public static final int DEFAULT_FRAME_MAX_SIZE = 64 * 1024;
+    /**
+     * The default max size for inbound WebSocket frames.
+     */
+    public static final int DEFAULT_FRAME_MAX_SIZE = 64 * 1024;
 
 
-	private static final Map<Class<?>, WebSocketMessage.Type> messageTypes;
+    private static final Map<Class<?>, WebSocketMessage.Type> messageTypes;
 
-	static {
-		messageTypes = new HashMap<>(8);
-		messageTypes.put(TextWebSocketFrame.class, WebSocketMessage.Type.TEXT);
-		messageTypes.put(BinaryWebSocketFrame.class, WebSocketMessage.Type.BINARY);
-		messageTypes.put(PingWebSocketFrame.class, WebSocketMessage.Type.PING);
-		messageTypes.put(PongWebSocketFrame.class, WebSocketMessage.Type.PONG);
-	}
-
-
-	protected NettyWebSocketSessionSupport(T delegate, HandshakeInfo info, NettyDataBufferFactory factory) {
-		super(delegate, ObjectUtils.getIdentityHexString(delegate), info, factory);
-	}
+    static {
+        messageTypes = new HashMap<>(8);
+        messageTypes.put(TextWebSocketFrame.class, WebSocketMessage.Type.TEXT);
+        messageTypes.put(BinaryWebSocketFrame.class, WebSocketMessage.Type.BINARY);
+        messageTypes.put(PingWebSocketFrame.class, WebSocketMessage.Type.PING);
+        messageTypes.put(PongWebSocketFrame.class, WebSocketMessage.Type.PONG);
+    }
 
 
-	@Override
-	public NettyDataBufferFactory bufferFactory() {
-		return (NettyDataBufferFactory) super.bufferFactory();
-	}
+    protected NettyWebSocketSessionSupport(T delegate, HandshakeInfo info, NettyDataBufferFactory factory) {
+        super(delegate, ObjectUtils.getIdentityHexString(delegate), info, factory);
+    }
 
 
-	protected WebSocketMessage toMessage(WebSocketFrame frame) {
-		DataBuffer payload = bufferFactory().wrap(frame.content());
-		return new WebSocketMessage(messageTypes.get(frame.getClass()), payload);
-	}
+    @Override
+    public NettyDataBufferFactory bufferFactory() {
+        return (NettyDataBufferFactory) super.bufferFactory();
+    }
 
-	protected WebSocketFrame toFrame(WebSocketMessage message) {
-		ByteBuf byteBuf = NettyDataBufferFactory.toByteBuf(message.getPayload());
-		if (WebSocketMessage.Type.TEXT.equals(message.getType())) {
-			return new TextWebSocketFrame(byteBuf);
-		}
-		else if (WebSocketMessage.Type.BINARY.equals(message.getType())) {
-			return new BinaryWebSocketFrame(byteBuf);
-		}
-		else if (WebSocketMessage.Type.PING.equals(message.getType())) {
-			return new PingWebSocketFrame(byteBuf);
-		}
-		else if (WebSocketMessage.Type.PONG.equals(message.getType())) {
-			return new PongWebSocketFrame(byteBuf);
-		}
-		else {
-			throw new IllegalArgumentException("Unexpected message type: " + message.getType());
-		}
-	}
+
+    protected WebSocketMessage toMessage(WebSocketFrame frame) {
+        DataBuffer payload = bufferFactory().wrap(frame.content());
+        return new WebSocketMessage(messageTypes.get(frame.getClass()), payload);
+    }
+
+    protected WebSocketFrame toFrame(WebSocketMessage message) {
+        ByteBuf byteBuf = NettyDataBufferFactory.toByteBuf(message.getPayload());
+        if (WebSocketMessage.Type.TEXT.equals(message.getType())) {
+            return new TextWebSocketFrame(byteBuf);
+        } else if (WebSocketMessage.Type.BINARY.equals(message.getType())) {
+            return new BinaryWebSocketFrame(byteBuf);
+        } else if (WebSocketMessage.Type.PING.equals(message.getType())) {
+            return new PingWebSocketFrame(byteBuf);
+        } else if (WebSocketMessage.Type.PONG.equals(message.getType())) {
+            return new PongWebSocketFrame(byteBuf);
+        } else {
+            throw new IllegalArgumentException("Unexpected message type: " + message.getType());
+        }
+    }
 
 }

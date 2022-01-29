@@ -17,7 +17,6 @@
 package org.springframework.test.context.env;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,11 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @TestPropertySource("extended.properties")
 public class MergedPropertiesFilesTestPropertySourceTests extends
-		ExplicitPropertiesFileTestPropertySourceTests {
+        ExplicitPropertiesFileTestPropertySourceTests {
 
-	@Test
-	public void verifyExtendedPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("extended", Integer.class).intValue()).isEqualTo(42);
-	}
+    @Test
+    public void verifyExtendedPropertiesAreAvailableInEnvironment() {
+        assertThat(env.getProperty("extended", Integer.class).intValue()).isEqualTo(42);
+    }
 
 }

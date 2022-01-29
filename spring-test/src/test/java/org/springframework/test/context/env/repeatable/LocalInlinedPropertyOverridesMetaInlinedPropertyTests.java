@@ -17,7 +17,6 @@
 package org.springframework.test.context.env.repeatable;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -32,9 +31,9 @@ import org.springframework.test.context.TestPropertySource;
 @MetaInlinedTestProperty
 public class LocalInlinedPropertyOverridesMetaInlinedPropertyTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	public void test() {
-		assertEnvironmentValue("enigma", "local override");
-	}
+    @Test
+    public void test() {
+        assertEnvironmentValue("enigma", "local override");
+    }
 
 }

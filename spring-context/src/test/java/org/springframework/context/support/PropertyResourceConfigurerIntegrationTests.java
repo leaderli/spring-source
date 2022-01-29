@@ -16,11 +16,8 @@
 
 package org.springframework.context.support;
 
-import java.io.FileNotFoundException;
-
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -30,6 +27,8 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.tests.sample.beans.TestBean;
 import org.springframework.util.StringUtils;
+
+import java.io.FileNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -44,104 +43,104 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class PropertyResourceConfigurerIntegrationTests {
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithSystemPropertyInLocation() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("spouse", new RuntimeBeanReference("${ref}"));
-		ac.registerSingleton("tb", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("location", "${user.dir}/test");
-		ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
-		String userDir = getUserDir();
-		assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
-				ac::refresh)
-			.withCauseInstanceOf(FileNotFoundException.class)
-			.withMessageContaining(userDir);
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithSystemPropertyInLocation() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("spouse", new RuntimeBeanReference("${ref}"));
+        ac.registerSingleton("tb", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("location", "${user.dir}/test");
+        ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
+        String userDir = getUserDir();
+        assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
+                ac::refresh)
+                .withCauseInstanceOf(FileNotFoundException.class)
+                .withMessageContaining(userDir);
+    }
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithSystemPropertiesInLocation() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("spouse", new RuntimeBeanReference("${ref}"));
-		ac.registerSingleton("tb", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("location", "${user.dir}/test/${user.dir}");
-		ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
-		String userDir = getUserDir();
-		assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
-				ac::refresh)
-			.withCauseInstanceOf(FileNotFoundException.class)
-			.matches(ex -> ex.getMessage().contains(userDir + "/test/" + userDir) ||
-					ex.getMessage().contains(userDir + "/test//" + userDir));
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithSystemPropertiesInLocation() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("spouse", new RuntimeBeanReference("${ref}"));
+        ac.registerSingleton("tb", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("location", "${user.dir}/test/${user.dir}");
+        ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
+        String userDir = getUserDir();
+        assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
+                ac::refresh)
+                .withCauseInstanceOf(FileNotFoundException.class)
+                .matches(ex -> ex.getMessage().contains(userDir + "/test/" + userDir) ||
+                        ex.getMessage().contains(userDir + "/test//" + userDir));
+    }
 
-	private String getUserDir() {
-		// slight hack for Linux/Unix systems
-		String userDir = StringUtils.cleanPath(System.getProperty("user.dir"));
-		if (userDir.startsWith("/")) {
-			userDir = userDir.substring(1);
-		}
-		return userDir;
-	}
+    private String getUserDir() {
+        // slight hack for Linux/Unix systems
+        String userDir = StringUtils.cleanPath(System.getProperty("user.dir"));
+        if (userDir.startsWith("/")) {
+            userDir = userDir.substring(1);
+        }
+        return userDir;
+    }
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithUnresolvableSystemPropertiesInLocation() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("spouse", new RuntimeBeanReference("${ref}"));
-		ac.registerSingleton("tb", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("location", "${myprop}/test/${myprop}");
-		ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
-		assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
-				ac::refresh)
-			.withMessageContaining("myprop");
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithUnresolvableSystemPropertiesInLocation() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("spouse", new RuntimeBeanReference("${ref}"));
+        ac.registerSingleton("tb", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("location", "${myprop}/test/${myprop}");
+        ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
+        assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(
+                ac::refresh)
+                .withMessageContaining("myprop");
+    }
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithMultiLevelCircularReference() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("name", "name${var}");
-		ac.registerSingleton("tb1", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${var}");
-		ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
-		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
-				ac::refresh);
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithMultiLevelCircularReference() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("name", "name${var}");
+        ac.registerSingleton("tb1", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${var}");
+        ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
+        assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+                ac::refresh);
+    }
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithNestedCircularReference() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("name", "name${var}");
-		ac.registerSingleton("tb1", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${m}");
-		ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
-		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
-				ac::refresh);
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithNestedCircularReference() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("name", "name${var}");
+        ac.registerSingleton("tb1", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${m}");
+        ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
+        assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+                ac::refresh);
+    }
 
-	@Test
-	public void testPropertyPlaceholderConfigurerWithNestedUnresolvableReference() {
-		StaticApplicationContext ac = new StaticApplicationContext();
-		MutablePropertyValues pvs = new MutablePropertyValues();
-		pvs.add("name", "name${var}");
-		ac.registerSingleton("tb1", TestBean.class, pvs);
-		pvs = new MutablePropertyValues();
-		pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${m2}");
-		ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
-		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
-				ac::refresh);
-	}
+    @Test
+    public void testPropertyPlaceholderConfigurerWithNestedUnresolvableReference() {
+        StaticApplicationContext ac = new StaticApplicationContext();
+        MutablePropertyValues pvs = new MutablePropertyValues();
+        pvs.add("name", "name${var}");
+        ac.registerSingleton("tb1", TestBean.class, pvs);
+        pvs = new MutablePropertyValues();
+        pvs.add("properties", "var=${m}var\nm=${var2}\nvar2=${m2}");
+        ac.registerSingleton("configurer1", PropertyPlaceholderConfigurer.class, pvs);
+        assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+                ac::refresh);
+    }
 
-	@Ignore // this test was breaking after the 3.0 repackaging
-	@Test
-	public void testPropertyPlaceholderConfigurerWithAutowireByType() {
+    @Ignore // this test was breaking after the 3.0 repackaging
+    @Test
+    public void testPropertyPlaceholderConfigurerWithAutowireByType() {
 //		StaticApplicationContext ac = new StaticApplicationContext();
 //		MutablePropertyValues pvs = new MutablePropertyValues();
 //		pvs.addPropertyValue("touchy", "${test}");
@@ -160,6 +159,6 @@ public class PropertyResourceConfigurerIntegrationTests {
 //		ac.refresh();
 //		TestBean tb = (TestBean) ac.getBean("tb");
 //		assertEquals("mytest", tb.getTouchy());
-	}
+    }
 
 }

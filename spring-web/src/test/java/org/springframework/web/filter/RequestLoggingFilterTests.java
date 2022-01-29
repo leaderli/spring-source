@@ -16,22 +16,21 @@
 
 package org.springframework.web.filter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import org.junit.Test;
+import org.springframework.mock.web.test.MockHttpServletRequest;
+import org.springframework.mock.web.test.MockHttpServletResponse;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.WebUtils;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Test;
-
-import org.springframework.mock.web.test.MockHttpServletRequest;
-import org.springframework.mock.web.test.MockHttpServletResponse;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.util.ContentCachingRequestWrapper;
-import org.springframework.web.util.WebUtils;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,178 +42,178 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RequestLoggingFilterTests {
 
-	private final MyRequestLoggingFilter filter = new MyRequestLoggingFilter();
+    private final MyRequestLoggingFilter filter = new MyRequestLoggingFilter();
 
 
-	@Test
-	public void uri() throws Exception {
-		final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+    @Test
+    public void uri() throws Exception {
+        final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		request.setQueryString("booking=42");
+        request.setQueryString("booking=42");
 
-		FilterChain filterChain = new NoOpFilterChain();
-		filter.doFilter(request, response, filterChain);
+        FilterChain filterChain = new NoOpFilterChain();
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.beforeRequestMessage).isNotNull();
-		assertThat(filter.beforeRequestMessage.contains("uri=/hotel")).isTrue();
-		assertThat(filter.beforeRequestMessage.contains("booking=42")).isFalse();
+        assertThat(filter.beforeRequestMessage).isNotNull();
+        assertThat(filter.beforeRequestMessage.contains("uri=/hotel")).isTrue();
+        assertThat(filter.beforeRequestMessage.contains("booking=42")).isFalse();
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains("uri=/hotel")).isTrue();
-		assertThat(filter.afterRequestMessage.contains("booking=42")).isFalse();
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains("uri=/hotel")).isTrue();
+        assertThat(filter.afterRequestMessage.contains("booking=42")).isFalse();
+    }
 
-	@Test
-	public void queryStringIncluded() throws Exception {
-		filter.setIncludeQueryString(true);
+    @Test
+    public void queryStringIncluded() throws Exception {
+        filter.setIncludeQueryString(true);
 
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		request.setQueryString("booking=42");
+        request.setQueryString("booking=42");
 
-		FilterChain filterChain = new NoOpFilterChain();
-		filter.doFilter(request, response, filterChain);
+        FilterChain filterChain = new NoOpFilterChain();
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.beforeRequestMessage).isNotNull();
-		assertThat(filter.beforeRequestMessage.contains("[uri=/hotels?booking=42]")).isTrue();
+        assertThat(filter.beforeRequestMessage).isNotNull();
+        assertThat(filter.beforeRequestMessage.contains("[uri=/hotels?booking=42]")).isTrue();
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains("[uri=/hotels?booking=42]")).isTrue();
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains("[uri=/hotels?booking=42]")).isTrue();
+    }
 
-	@Test
-	public void noQueryStringAvailable() throws Exception {
-		filter.setIncludeQueryString(true);
+    @Test
+    public void noQueryStringAvailable() throws Exception {
+        filter.setIncludeQueryString(true);
 
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		FilterChain filterChain = new NoOpFilterChain();
-		filter.doFilter(request, response, filterChain);
+        FilterChain filterChain = new NoOpFilterChain();
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.beforeRequestMessage).isNotNull();
-		assertThat(filter.beforeRequestMessage.contains("[uri=/hotels]")).isTrue();
+        assertThat(filter.beforeRequestMessage).isNotNull();
+        assertThat(filter.beforeRequestMessage.contains("[uri=/hotels]")).isTrue();
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains("[uri=/hotels]")).isTrue();
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains("[uri=/hotels]")).isTrue();
+    }
 
-	@Test
-	public void headers() throws Exception {
-		final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		request.setContentType("application/json");
-		request.addHeader("token", "123");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+    @Test
+    public void headers() throws Exception {
+        final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        request.setContentType("application/json");
+        request.addHeader("token", "123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		FilterChain filterChain = new NoOpFilterChain();
-		filter.setIncludeHeaders(true);
-		filter.setHeaderPredicate(name -> !name.equalsIgnoreCase("token"));
-		filter.doFilter(request, response, filterChain);
+        FilterChain filterChain = new NoOpFilterChain();
+        filter.setIncludeHeaders(true);
+        filter.setHeaderPredicate(name -> !name.equalsIgnoreCase("token"));
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.beforeRequestMessage).isNotNull();
-		assertThat(filter.beforeRequestMessage).isEqualTo("Before request [uri=/hotels;headers=[Content-Type:\"application/json\", token:\"masked\"]]");
+        assertThat(filter.beforeRequestMessage).isNotNull();
+        assertThat(filter.beforeRequestMessage).isEqualTo("Before request [uri=/hotels;headers=[Content-Type:\"application/json\", token:\"masked\"]]");
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage).isEqualTo("After request [uri=/hotels;headers=[Content-Type:\"application/json\", token:\"masked\"]]");
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage).isEqualTo("After request [uri=/hotels;headers=[Content-Type:\"application/json\", token:\"masked\"]]");
+    }
 
-	@Test
-	public void payloadInputStream() throws Exception {
-		filter.setIncludePayload(true);
+    @Test
+    public void payloadInputStream() throws Exception {
+        filter.setIncludePayload(true);
 
-		final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		final byte[] requestBody = "Hello World".getBytes(StandardCharsets.UTF_8);
-		request.setContent(requestBody);
+        final byte[] requestBody = "Hello World".getBytes(StandardCharsets.UTF_8);
+        request.setContent(requestBody);
 
-		FilterChain filterChain = (filterRequest, filterResponse) -> {
-			((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
-			byte[] buf = FileCopyUtils.copyToByteArray(filterRequest.getInputStream());
-			assertThat(buf).isEqualTo(requestBody);
-		};
+        FilterChain filterChain = (filterRequest, filterResponse) -> {
+            ((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
+            byte[] buf = FileCopyUtils.copyToByteArray(filterRequest.getInputStream());
+            assertThat(buf).isEqualTo(requestBody);
+        };
 
-		filter.doFilter(request, response, filterChain);
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains("Hello World")).isTrue();
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains("Hello World")).isTrue();
+    }
 
-	@Test
-	public void payloadReader() throws Exception {
-		filter.setIncludePayload(true);
+    @Test
+    public void payloadReader() throws Exception {
+        filter.setIncludePayload(true);
 
-		final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		final String requestBody = "Hello World";
-		request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
+        final String requestBody = "Hello World";
+        request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
 
-		FilterChain filterChain = (filterRequest, filterResponse) -> {
-			((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
-			String buf = FileCopyUtils.copyToString(filterRequest.getReader());
-			assertThat(buf).isEqualTo(requestBody);
-		};
+        FilterChain filterChain = (filterRequest, filterResponse) -> {
+            ((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
+            String buf = FileCopyUtils.copyToString(filterRequest.getReader());
+            assertThat(buf).isEqualTo(requestBody);
+        };
 
-		filter.doFilter(request, response, filterChain);
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains(requestBody)).isTrue();
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains(requestBody)).isTrue();
+    }
 
-	@Test
-	public void payloadMaxLength() throws Exception {
-		filter.setIncludePayload(true);
-		filter.setMaxPayloadLength(3);
+    @Test
+    public void payloadMaxLength() throws Exception {
+        filter.setIncludePayload(true);
+        filter.setMaxPayloadLength(3);
 
-		final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		final byte[] requestBody = "Hello World".getBytes(StandardCharsets.UTF_8);
-		request.setContent(requestBody);
+        final byte[] requestBody = "Hello World".getBytes(StandardCharsets.UTF_8);
+        request.setContent(requestBody);
 
-		FilterChain filterChain = (filterRequest, filterResponse) -> {
-			((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
-			byte[] buf = FileCopyUtils.copyToByteArray(filterRequest.getInputStream());
-			assertThat(buf).isEqualTo(requestBody);
-			ContentCachingRequestWrapper wrapper =
-					WebUtils.getNativeRequest(filterRequest, ContentCachingRequestWrapper.class);
-			assertThat(wrapper.getContentAsByteArray()).isEqualTo("Hel".getBytes(StandardCharsets.UTF_8));
-		};
+        FilterChain filterChain = (filterRequest, filterResponse) -> {
+            ((HttpServletResponse) filterResponse).setStatus(HttpServletResponse.SC_OK);
+            byte[] buf = FileCopyUtils.copyToByteArray(filterRequest.getInputStream());
+            assertThat(buf).isEqualTo(requestBody);
+            ContentCachingRequestWrapper wrapper =
+                    WebUtils.getNativeRequest(filterRequest, ContentCachingRequestWrapper.class);
+            assertThat(wrapper.getContentAsByteArray()).isEqualTo("Hel".getBytes(StandardCharsets.UTF_8));
+        };
 
-		filter.doFilter(request, response, filterChain);
+        filter.doFilter(request, response, filterChain);
 
-		assertThat(filter.afterRequestMessage).isNotNull();
-		assertThat(filter.afterRequestMessage.contains("Hel")).isTrue();
-		assertThat(filter.afterRequestMessage.contains("Hello World")).isFalse();
-	}
-
-
-	private static class MyRequestLoggingFilter extends AbstractRequestLoggingFilter {
-
-		private String beforeRequestMessage;
-
-		private String afterRequestMessage;
-
-		@Override
-		protected void beforeRequest(HttpServletRequest request, String message) {
-			this.beforeRequestMessage = message;
-		}
-
-		@Override
-		protected void afterRequest(HttpServletRequest request, String message) {
-			this.afterRequestMessage = message;
-		}
-	}
+        assertThat(filter.afterRequestMessage).isNotNull();
+        assertThat(filter.afterRequestMessage.contains("Hel")).isTrue();
+        assertThat(filter.afterRequestMessage.contains("Hello World")).isFalse();
+    }
 
 
-	private static class NoOpFilterChain implements FilterChain {
+    private static class MyRequestLoggingFilter extends AbstractRequestLoggingFilter {
 
-		@Override
-		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-		}
-	}
+        private String beforeRequestMessage;
+
+        private String afterRequestMessage;
+
+        @Override
+        protected void beforeRequest(HttpServletRequest request, String message) {
+            this.beforeRequestMessage = message;
+        }
+
+        @Override
+        protected void afterRequest(HttpServletRequest request, String message) {
+            this.afterRequestMessage = message;
+        }
+    }
+
+
+    private static class NoOpFilterChain implements FilterChain {
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+        }
+    }
 
 }

@@ -16,11 +16,11 @@
 
 package org.springframework.tests;
 
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -34,61 +34,61 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class TestGroupTests {
 
-	@Test
-	public void parseNull() {
-		assertThat(TestGroup.parse(null)).isEqualTo(Collections.emptySet());
-	}
+    @Test
+    public void parseNull() {
+        assertThat(TestGroup.parse(null)).isEqualTo(Collections.emptySet());
+    }
 
-	@Test
-	public void parseEmptyString() {
-		assertThat(TestGroup.parse("")).isEqualTo(Collections.emptySet());
-	}
+    @Test
+    public void parseEmptyString() {
+        assertThat(TestGroup.parse("")).isEqualTo(Collections.emptySet());
+    }
 
-	@Test
-	public void parseBlankString() {
-		assertThat(TestGroup.parse("     ")).isEqualTo(Collections.emptySet());
-	}
+    @Test
+    public void parseBlankString() {
+        assertThat(TestGroup.parse("     ")).isEqualTo(Collections.emptySet());
+    }
 
-	@Test
-	public void parseWithSpaces() {
-		assertThat(TestGroup.parse(" PERFORMANCE,  PERFORMANCE ")).containsOnly(
-				TestGroup.PERFORMANCE);
-	}
+    @Test
+    public void parseWithSpaces() {
+        assertThat(TestGroup.parse(" PERFORMANCE,  PERFORMANCE ")).containsOnly(
+                TestGroup.PERFORMANCE);
+    }
 
-	@Test
-	public void parseInMixedCase() {
-		assertThat(TestGroup.parse("performance,  PERFormaNCE")).containsOnly(
-				TestGroup.PERFORMANCE);
-	}
+    @Test
+    public void parseInMixedCase() {
+        assertThat(TestGroup.parse("performance,  PERFormaNCE")).containsOnly(
+                TestGroup.PERFORMANCE);
+    }
 
-	@Test
-	public void parseMissing() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				TestGroup.parse("performance, missing"))
-			.withMessageContaining("Unable to find test group 'missing' when parsing " +
-					"testGroups value: 'performance, missing'. Available groups include: " +
-					"[LONG_RUNNING,PERFORMANCE,CI]");
-	}
+    @Test
+    public void parseMissing() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                TestGroup.parse("performance, missing"))
+                .withMessageContaining("Unable to find test group 'missing' when parsing " +
+                        "testGroups value: 'performance, missing'. Available groups include: " +
+                        "[LONG_RUNNING,PERFORMANCE,CI]");
+    }
 
-	@Test
-	public void parseAll() {
-		assertThat(TestGroup.parse("all")).isEqualTo(EnumSet.allOf(TestGroup.class));
-	}
+    @Test
+    public void parseAll() {
+        assertThat(TestGroup.parse("all")).isEqualTo(EnumSet.allOf(TestGroup.class));
+    }
 
-	@Test
-	public void parseAllExceptPerformance() {
-		Set<TestGroup> expected = EnumSet.allOf(TestGroup.class);
-		expected.remove(TestGroup.PERFORMANCE);
-		assertThat(TestGroup.parse("all-performance")).isEqualTo(expected);
-	}
+    @Test
+    public void parseAllExceptPerformance() {
+        Set<TestGroup> expected = EnumSet.allOf(TestGroup.class);
+        expected.remove(TestGroup.PERFORMANCE);
+        assertThat(TestGroup.parse("all-performance")).isEqualTo(expected);
+    }
 
-	@Test
-	public void parseAllExceptMissing() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				TestGroup.parse("all-missing"))
-			.withMessageContaining("Unable to find test group 'missing' when parsing " +
-					"testGroups value: 'all-missing'. Available groups include: " +
-					"[LONG_RUNNING,PERFORMANCE,CI]");
-	}
+    @Test
+    public void parseAllExceptMissing() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                TestGroup.parse("all-missing"))
+                .withMessageContaining("Unable to find test group 'missing' when parsing " +
+                        "testGroups value: 'all-missing'. Available groups include: " +
+                        "[LONG_RUNNING,PERFORMANCE,CI]");
+    }
 
 }

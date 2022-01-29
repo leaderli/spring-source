@@ -18,7 +18,6 @@ package org.springframework.test.context.env;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -44,22 +43,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource("ApplicationPropertyOverridePropertiesFileTestPropertySourceTests.properties")
 public class ApplicationPropertyOverridePropertiesFileTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+    @Autowired
+    protected Environment env;
 
 
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("explicit")).isEqualTo("test override");
-	}
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        assertThat(env.getProperty("explicit")).isEqualTo("test override");
+    }
 
 
-	// -------------------------------------------------------------------
+    // -------------------------------------------------------------------
 
-	@Configuration
-	@PropertySource("classpath:/org/springframework/test/context/env/explicit.properties")
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @Configuration
+    @PropertySource("classpath:/org/springframework/test/context/env/explicit.properties")
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

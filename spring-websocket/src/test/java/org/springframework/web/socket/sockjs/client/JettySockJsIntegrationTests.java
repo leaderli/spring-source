@@ -17,7 +17,6 @@
 package org.springframework.web.socket.sockjs.client;
 
 import org.eclipse.jetty.client.HttpClient;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.JettyWebSocketTestServer;
@@ -32,33 +31,33 @@ import org.springframework.web.socket.server.jetty.JettyRequestUpgradeStrategy;
  */
 public class JettySockJsIntegrationTests extends AbstractSockJsIntegrationTests {
 
-	@Override
-	protected Class<?> upgradeStrategyConfigClass() {
-		return JettyTestConfig.class;
-	}
+    @Override
+    protected Class<?> upgradeStrategyConfigClass() {
+        return JettyTestConfig.class;
+    }
 
-	@Override
-	protected JettyWebSocketTestServer createWebSocketTestServer() {
-		return new JettyWebSocketTestServer();
-	}
+    @Override
+    protected JettyWebSocketTestServer createWebSocketTestServer() {
+        return new JettyWebSocketTestServer();
+    }
 
-	@Override
-	protected Transport createWebSocketTransport() {
-		return new WebSocketTransport(new JettyWebSocketClient());
-	}
+    @Override
+    protected Transport createWebSocketTransport() {
+        return new WebSocketTransport(new JettyWebSocketClient());
+    }
 
-	@Override
-	protected AbstractXhrTransport createXhrTransport() {
-		return new JettyXhrTransport(new HttpClient());
-	}
+    @Override
+    protected AbstractXhrTransport createXhrTransport() {
+        return new JettyXhrTransport(new HttpClient());
+    }
 
 
-	@Configuration
-	static class JettyTestConfig {
-		@Bean
-		public RequestUpgradeStrategy upgradeStrategy() {
-			return new JettyRequestUpgradeStrategy();
-		}
-	}
+    @Configuration
+    static class JettyTestConfig {
+        @Bean
+        public RequestUpgradeStrategy upgradeStrategy() {
+            return new JettyRequestUpgradeStrategy();
+        }
+    }
 
 }

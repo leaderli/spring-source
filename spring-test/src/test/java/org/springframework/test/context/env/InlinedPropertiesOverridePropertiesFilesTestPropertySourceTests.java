@@ -18,7 +18,6 @@ package org.springframework.test.context.env;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -41,22 +40,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(locations = "explicit.properties", properties = "explicit = inlined")
 public class InlinedPropertiesOverridePropertiesFilesTestPropertySourceTests {
 
-	@Autowired
-	Environment env;
+    @Autowired
+    Environment env;
 
-	@Value("${explicit}")
-	String explicit;
-
-
-	@Test
-	public void inlinedPropertyOverridesValueFromPropertiesFile() {
-		assertThat(env.getProperty("explicit")).isEqualTo("inlined");
-		assertThat(this.explicit).isEqualTo("inlined");
-	}
+    @Value("${explicit}")
+    String explicit;
 
 
-	@Configuration
-	static class Config {
-	}
+    @Test
+    public void inlinedPropertyOverridesValueFromPropertiesFile() {
+        assertThat(env.getProperty("explicit")).isEqualTo("inlined");
+        assertThat(this.explicit).isEqualTo("inlined");
+    }
+
+
+    @Configuration
+    static class Config {
+    }
 
 }

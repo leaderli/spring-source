@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AppConfig {
-	
-	@Bean
-	CityService cityService(){
-		return new CityService();
-	}
+
+    @Bean
+    CityService cityService() {
+        return new CityService();
+    }
 }

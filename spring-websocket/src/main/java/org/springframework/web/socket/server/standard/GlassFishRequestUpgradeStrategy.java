@@ -16,20 +16,19 @@
 
 package org.springframework.web.socket.server.standard;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.glassfish.tyrus.core.TyrusUpgradeResponse;
 import org.glassfish.tyrus.core.Utils;
 import org.glassfish.tyrus.servlet.TyrusHttpUpgradeHandler;
 import org.glassfish.tyrus.spi.WebSocketEngine.UpgradeInfo;
 import org.glassfish.tyrus.spi.Writer;
-
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.socket.server.HandshakeFailureException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 
 /**
  * A WebSocket {@code RequestUpgradeStrategy} for Oracle's GlassFish 4.1 and higher.
@@ -41,41 +40,39 @@ import org.springframework.web.socket.server.HandshakeFailureException;
  */
 public class GlassFishRequestUpgradeStrategy extends AbstractTyrusRequestUpgradeStrategy {
 
-	private static final Constructor<?> constructor;
+    private static final Constructor<?> constructor;
 
-	static {
-		try {
-			ClassLoader classLoader = GlassFishRequestUpgradeStrategy.class.getClassLoader();
-			Class<?> type = classLoader.loadClass("org.glassfish.tyrus.servlet.TyrusServletWriter");
-			constructor = type.getDeclaredConstructor(TyrusHttpUpgradeHandler.class);
-			ReflectionUtils.makeAccessible(constructor);
-		}
-		catch (Exception ex) {
-			throw new IllegalStateException("No compatible Tyrus version found", ex);
-		}
-	}
+    static {
+        try {
+            ClassLoader classLoader = GlassFishRequestUpgradeStrategy.class.getClassLoader();
+            Class<?> type = classLoader.loadClass("org.glassfish.tyrus.servlet.TyrusServletWriter");
+            constructor = type.getDeclaredConstructor(TyrusHttpUpgradeHandler.class);
+            ReflectionUtils.makeAccessible(constructor);
+        } catch (Exception ex) {
+            throw new IllegalStateException("No compatible Tyrus version found", ex);
+        }
+    }
 
 
-	@Override
-	protected void handleSuccess(HttpServletRequest request, HttpServletResponse response,
-			UpgradeInfo upgradeInfo, TyrusUpgradeResponse upgradeResponse) throws IOException, ServletException {
+    @Override
+    protected void handleSuccess(HttpServletRequest request, HttpServletResponse response,
+                                 UpgradeInfo upgradeInfo, TyrusUpgradeResponse upgradeResponse) throws IOException, ServletException {
 
-		TyrusHttpUpgradeHandler handler = request.upgrade(TyrusHttpUpgradeHandler.class);
-		Writer servletWriter = newServletWriter(handler);
-		handler.preInit(upgradeInfo, servletWriter, request.getUserPrincipal() != null);
+        TyrusHttpUpgradeHandler handler = request.upgrade(TyrusHttpUpgradeHandler.class);
+        Writer servletWriter = newServletWriter(handler);
+        handler.preInit(upgradeInfo, servletWriter, request.getUserPrincipal() != null);
 
-		response.setStatus(upgradeResponse.getStatus());
-		upgradeResponse.getHeaders().forEach((key, value) -> response.addHeader(key, Utils.getHeaderFromList(value)));
-		response.flushBuffer();
-	}
+        response.setStatus(upgradeResponse.getStatus());
+        upgradeResponse.getHeaders().forEach((key, value) -> response.addHeader(key, Utils.getHeaderFromList(value)));
+        response.flushBuffer();
+    }
 
-	private Writer newServletWriter(TyrusHttpUpgradeHandler handler) {
-		try {
-			return (Writer) constructor.newInstance(handler);
-		}
-		catch (Exception ex) {
-			throw new HandshakeFailureException("Failed to instantiate TyrusServletWriter", ex);
-		}
-	}
+    private Writer newServletWriter(TyrusHttpUpgradeHandler handler) {
+        try {
+            return (Writer) constructor.newInstance(handler);
+        } catch (Exception ex) {
+            throw new HandshakeFailureException("Failed to instantiate TyrusServletWriter", ex);
+        }
+    }
 
 }

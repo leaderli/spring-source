@@ -16,11 +16,6 @@
 
 package org.springframework.http.codec.json;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
@@ -29,9 +24,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.CodecException;
@@ -46,6 +38,13 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract base class for Jackson 2.9 decoding, leveraging non-blocking parsing.
@@ -53,137 +52,134 @@ import org.springframework.util.MimeType;
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
- * @since 5.0
  * @see <a href="https://github.com/FasterXML/jackson-core/issues/57" target="_blank">Add support for non-blocking ("async") JSON parsing</a>
+ * @since 5.0
  */
 public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport implements HttpMessageDecoder<Object> {
 
-	/**
-	 * Until https://github.com/FasterXML/jackson-core/issues/476 is resolved,
-	 * we need to ensure buffer recycling is off.
-	 */
-	private final JsonFactory jsonFactory;
+    /**
+     * Until https://github.com/FasterXML/jackson-core/issues/476 is resolved,
+     * we need to ensure buffer recycling is off.
+     */
+    private final JsonFactory jsonFactory;
 
 
-	/**
-	 * Constructor with a Jackson {@link ObjectMapper} to use.
-	 */
-	protected AbstractJackson2Decoder(ObjectMapper mapper, MimeType... mimeTypes) {
-		super(mapper, mimeTypes);
-		this.jsonFactory = mapper.getFactory().copy()
-				.disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
-	}
+    /**
+     * Constructor with a Jackson {@link ObjectMapper} to use.
+     */
+    protected AbstractJackson2Decoder(ObjectMapper mapper, MimeType... mimeTypes) {
+        super(mapper, mimeTypes);
+        this.jsonFactory = mapper.getFactory().copy()
+                .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
+    }
 
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		JavaType javaType = getObjectMapper().getTypeFactory().constructType(elementType.getType());
-		// Skip String: CharSequenceDecoder + "*/*" comes after
-		return (!CharSequence.class.isAssignableFrom(elementType.toClass()) &&
-				getObjectMapper().canDeserialize(javaType) && supportsMimeType(mimeType));
-	}
+    @Override
+    public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        JavaType javaType = getObjectMapper().getTypeFactory().constructType(elementType.getType());
+        // Skip String: CharSequenceDecoder + "*/*" comes after
+        return (!CharSequence.class.isAssignableFrom(elementType.toClass()) &&
+                getObjectMapper().canDeserialize(javaType) && supportsMimeType(mimeType));
+    }
 
-	@Override
-	public Flux<Object> decode(Publisher<DataBuffer> input, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    public Flux<Object> decode(Publisher<DataBuffer> input, ResolvableType elementType,
+                               @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
-				Flux.from(input), this.jsonFactory, getObjectMapper(), true);
+        Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
+                Flux.from(input), this.jsonFactory, getObjectMapper(), true);
 
-		ObjectReader reader = getObjectReader(elementType, hints);
+        ObjectReader reader = getObjectReader(elementType, hints);
 
-		return tokens.handle((tokenBuffer, sink) -> {
-			try {
-				Object value = reader.readValue(tokenBuffer.asParser(getObjectMapper()));
-				logValue(value, hints);
-				if (value != null) {
-					sink.next(value);
-				}
-			}
-			catch (IOException ex) {
-				sink.error(processException(ex));
-			}
-		});
-	}
+        return tokens.handle((tokenBuffer, sink) -> {
+            try {
+                Object value = reader.readValue(tokenBuffer.asParser(getObjectMapper()));
+                logValue(value, hints);
+                if (value != null) {
+                    sink.next(value);
+                }
+            } catch (IOException ex) {
+                sink.error(processException(ex));
+            }
+        });
+    }
 
-	@Override
-	public Mono<Object> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    public Mono<Object> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
+                                     @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		return DataBufferUtils.join(input)
-				.map(dataBuffer -> decode(dataBuffer, elementType, mimeType, hints));
-	}
+        return DataBufferUtils.join(input)
+                .map(dataBuffer -> decode(dataBuffer, elementType, mimeType, hints));
+    }
 
-	@Override
-	public Object decode(DataBuffer dataBuffer, ResolvableType targetType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
+    @Override
+    public Object decode(DataBuffer dataBuffer, ResolvableType targetType,
+                         @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
 
-		try {
-			ObjectReader objectReader = getObjectReader(targetType, hints);
-			Object value = objectReader.readValue(dataBuffer.asInputStream());
-			logValue(value, hints);
-			return value;
-		}
-		catch (IOException ex) {
-			throw processException(ex);
-		}
-		finally {
-			DataBufferUtils.release(dataBuffer);
-		}
-	}
+        try {
+            ObjectReader objectReader = getObjectReader(targetType, hints);
+            Object value = objectReader.readValue(dataBuffer.asInputStream());
+            logValue(value, hints);
+            return value;
+        } catch (IOException ex) {
+            throw processException(ex);
+        } finally {
+            DataBufferUtils.release(dataBuffer);
+        }
+    }
 
-	private ObjectReader getObjectReader(ResolvableType elementType, @Nullable Map<String, Object> hints) {
-		Assert.notNull(elementType, "'elementType' must not be null");
-		MethodParameter param = getParameter(elementType);
-		Class<?> contextClass = (param != null ? param.getContainingClass() : null);
-		JavaType javaType = getJavaType(elementType.getType(), contextClass);
-		Class<?> jsonView = (hints != null ? (Class<?>) hints.get(Jackson2CodecSupport.JSON_VIEW_HINT) : null);
-		return jsonView != null ?
-				getObjectMapper().readerWithView(jsonView).forType(javaType) :
-				getObjectMapper().readerFor(javaType);
-	}
+    private ObjectReader getObjectReader(ResolvableType elementType, @Nullable Map<String, Object> hints) {
+        Assert.notNull(elementType, "'elementType' must not be null");
+        MethodParameter param = getParameter(elementType);
+        Class<?> contextClass = (param != null ? param.getContainingClass() : null);
+        JavaType javaType = getJavaType(elementType.getType(), contextClass);
+        Class<?> jsonView = (hints != null ? (Class<?>) hints.get(Jackson2CodecSupport.JSON_VIEW_HINT) : null);
+        return jsonView != null ?
+                getObjectMapper().readerWithView(jsonView).forType(javaType) :
+                getObjectMapper().readerFor(javaType);
+    }
 
-	private void logValue(@Nullable Object value, @Nullable Map<String, Object> hints) {
-		if (!Hints.isLoggingSuppressed(hints)) {
-			LogFormatUtils.traceDebug(logger, traceOn -> {
-				String formatted = LogFormatUtils.formatValue(value, !traceOn);
-				return Hints.getLogPrefix(hints) + "Decoded [" + formatted + "]";
-			});
-		}
-	}
+    private void logValue(@Nullable Object value, @Nullable Map<String, Object> hints) {
+        if (!Hints.isLoggingSuppressed(hints)) {
+            LogFormatUtils.traceDebug(logger, traceOn -> {
+                String formatted = LogFormatUtils.formatValue(value, !traceOn);
+                return Hints.getLogPrefix(hints) + "Decoded [" + formatted + "]";
+            });
+        }
+    }
 
-	private CodecException processException(IOException ex) {
-		if (ex instanceof InvalidDefinitionException) {
-			JavaType type = ((InvalidDefinitionException) ex).getType();
-			return new CodecException("Type definition error: " + type, ex);
-		}
-		if (ex instanceof JsonProcessingException) {
-			String originalMessage = ((JsonProcessingException) ex).getOriginalMessage();
-			return new DecodingException("JSON decoding error: " + originalMessage, ex);
-		}
-		return new DecodingException("I/O error while parsing input stream", ex);
-	}
+    private CodecException processException(IOException ex) {
+        if (ex instanceof InvalidDefinitionException) {
+            JavaType type = ((InvalidDefinitionException) ex).getType();
+            return new CodecException("Type definition error: " + type, ex);
+        }
+        if (ex instanceof JsonProcessingException) {
+            String originalMessage = ((JsonProcessingException) ex).getOriginalMessage();
+            return new DecodingException("JSON decoding error: " + originalMessage, ex);
+        }
+        return new DecodingException("I/O error while parsing input stream", ex);
+    }
 
 
-	// HttpMessageDecoder...
+    // HttpMessageDecoder...
 
-	@Override
-	public Map<String, Object> getDecodeHints(ResolvableType actualType, ResolvableType elementType,
-			ServerHttpRequest request, ServerHttpResponse response) {
+    @Override
+    public Map<String, Object> getDecodeHints(ResolvableType actualType, ResolvableType elementType,
+                                              ServerHttpRequest request, ServerHttpResponse response) {
 
-		return getHints(actualType);
-	}
+        return getHints(actualType);
+    }
 
-	@Override
-	public List<MimeType> getDecodableMimeTypes() {
-		return getMimeTypes();
-	}
+    @Override
+    public List<MimeType> getDecodableMimeTypes() {
+        return getMimeTypes();
+    }
 
-	// Jackson2CodecSupport ...
+    // Jackson2CodecSupport ...
 
-	@Override
-	protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
-		return parameter.getParameterAnnotation(annotType);
-	}
+    @Override
+    protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
+        return parameter.getParameterAnnotation(annotType);
+    }
 
 }

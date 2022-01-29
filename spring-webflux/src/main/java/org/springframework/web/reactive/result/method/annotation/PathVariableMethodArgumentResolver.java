@@ -16,9 +16,6 @@
 
 package org.springframework.web.reactive.result.method.annotation;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -32,6 +29,9 @@ import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerErrorException;
 import org.springframework.web.server.ServerWebExchange;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Resolves method arguments annotated with @{@link PathVariable}.
@@ -49,67 +49,68 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
- * @since 5.0
  * @see PathVariableMapMethodArgumentResolver
+ * @since 5.0
  */
 public class PathVariableMethodArgumentResolver extends AbstractNamedValueSyncArgumentResolver {
 
-	/**
-	 * Create a new {@link PathVariableMethodArgumentResolver}.
-	 * @param factory a bean factory to use for resolving {@code ${...}}
-	 * placeholder and {@code #{...}} SpEL expressions in default values;
-	 * or {@code null} if default values are not expected to contain expressions
-	 * @param registry for checking reactive type wrappers
-	 */
-	public PathVariableMethodArgumentResolver(@Nullable ConfigurableBeanFactory factory,
-			ReactiveAdapterRegistry registry) {
+    /**
+     * Create a new {@link PathVariableMethodArgumentResolver}.
+     *
+     * @param factory  a bean factory to use for resolving {@code ${...}}
+     *                 placeholder and {@code #{...}} SpEL expressions in default values;
+     *                 or {@code null} if default values are not expected to contain expressions
+     * @param registry for checking reactive type wrappers
+     */
+    public PathVariableMethodArgumentResolver(@Nullable ConfigurableBeanFactory factory,
+                                              ReactiveAdapterRegistry registry) {
 
-		super(factory, registry);
-	}
-
-
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return checkAnnotatedParamNoReactiveWrapper(parameter, PathVariable.class, this::singlePathVariable);
-	}
-
-	private boolean singlePathVariable(PathVariable pathVariable, Class<?> type) {
-		return !Map.class.isAssignableFrom(type) || StringUtils.hasText(pathVariable.name());
-	}
-
-	@Override
-	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
-		PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
-		Assert.state(ann != null, "No PathVariable annotation");
-		return new PathVariableNamedValueInfo(ann);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected Object resolveNamedValue(String name, MethodParameter parameter, ServerWebExchange exchange) {
-		String attributeName = HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE;
-		return exchange.getAttributeOrDefault(attributeName, Collections.emptyMap()).get(name);
-	}
-
-	@Override
-	protected void handleMissingValue(String name, MethodParameter parameter) {
-		throw new ServerErrorException(name, parameter, null);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected void handleResolvedValue(
-			@Nullable Object arg, String name, MethodParameter parameter, Model model, ServerWebExchange exchange) {
-
-		// TODO: View.PATH_VARIABLES ?
-	}
+        super(factory, registry);
+    }
 
 
-	private static class PathVariableNamedValueInfo extends NamedValueInfo {
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return checkAnnotatedParamNoReactiveWrapper(parameter, PathVariable.class, this::singlePathVariable);
+    }
 
-		public PathVariableNamedValueInfo(PathVariable annotation) {
-			super(annotation.name(), annotation.required(), ValueConstants.DEFAULT_NONE);
-		}
-	}
+    private boolean singlePathVariable(PathVariable pathVariable, Class<?> type) {
+        return !Map.class.isAssignableFrom(type) || StringUtils.hasText(pathVariable.name());
+    }
+
+    @Override
+    protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+        PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
+        Assert.state(ann != null, "No PathVariable annotation");
+        return new PathVariableNamedValueInfo(ann);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Object resolveNamedValue(String name, MethodParameter parameter, ServerWebExchange exchange) {
+        String attributeName = HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE;
+        return exchange.getAttributeOrDefault(attributeName, Collections.emptyMap()).get(name);
+    }
+
+    @Override
+    protected void handleMissingValue(String name, MethodParameter parameter) {
+        throw new ServerErrorException(name, parameter, null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void handleResolvedValue(
+            @Nullable Object arg, String name, MethodParameter parameter, Model model, ServerWebExchange exchange) {
+
+        // TODO: View.PATH_VARIABLES ?
+    }
+
+
+    private static class PathVariableNamedValueInfo extends NamedValueInfo {
+
+        public PathVariableNamedValueInfo(PathVariable annotation) {
+            super(annotation.name(), annotation.required(), ValueConstants.DEFAULT_NONE);
+        }
+    }
 
 }

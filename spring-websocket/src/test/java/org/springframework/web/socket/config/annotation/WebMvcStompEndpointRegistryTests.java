@@ -16,11 +16,8 @@
 
 package org.springframework.web.socket.config.annotation;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
@@ -29,6 +26,8 @@ import org.springframework.web.socket.messaging.StompSubProtocolHandler;
 import org.springframework.web.socket.messaging.SubProtocolHandler;
 import org.springframework.web.socket.messaging.SubProtocolWebSocketHandler;
 import org.springframework.web.util.UrlPathHelper;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,63 +40,63 @@ import static org.mockito.Mockito.mock;
  */
 public class WebMvcStompEndpointRegistryTests {
 
-	private WebMvcStompEndpointRegistry endpointRegistry;
+    private WebMvcStompEndpointRegistry endpointRegistry;
 
-	private SubProtocolWebSocketHandler webSocketHandler;
-
-
-	@Before
-	public void setup() {
-		SubscribableChannel inChannel = mock(SubscribableChannel.class);
-		SubscribableChannel outChannel = mock(SubscribableChannel.class);
-		this.webSocketHandler = new SubProtocolWebSocketHandler(inChannel, outChannel);
-
-		WebSocketTransportRegistration transport = new WebSocketTransportRegistration();
-		TaskScheduler scheduler = mock(TaskScheduler.class);
-		this.endpointRegistry = new WebMvcStompEndpointRegistry(this.webSocketHandler, transport, scheduler);
-	}
+    private SubProtocolWebSocketHandler webSocketHandler;
 
 
-	@Test
-	public void stompProtocolHandler() {
-		this.endpointRegistry.addEndpoint("/stomp");
+    @Before
+    public void setup() {
+        SubscribableChannel inChannel = mock(SubscribableChannel.class);
+        SubscribableChannel outChannel = mock(SubscribableChannel.class);
+        this.webSocketHandler = new SubProtocolWebSocketHandler(inChannel, outChannel);
 
-		Map<String, SubProtocolHandler> protocolHandlers = webSocketHandler.getProtocolHandlerMap();
-		assertThat(protocolHandlers.size()).isEqualTo(3);
-		assertThat(protocolHandlers.get("v10.stomp")).isNotNull();
-		assertThat(protocolHandlers.get("v11.stomp")).isNotNull();
-		assertThat(protocolHandlers.get("v12.stomp")).isNotNull();
-	}
+        WebSocketTransportRegistration transport = new WebSocketTransportRegistration();
+        TaskScheduler scheduler = mock(TaskScheduler.class);
+        this.endpointRegistry = new WebMvcStompEndpointRegistry(this.webSocketHandler, transport, scheduler);
+    }
 
-	@Test
-	public void handlerMapping() {
-		SimpleUrlHandlerMapping hm = (SimpleUrlHandlerMapping) this.endpointRegistry.getHandlerMapping();
-		assertThat(hm.getUrlMap().size()).isEqualTo(0);
 
-		UrlPathHelper pathHelper = new UrlPathHelper();
-		this.endpointRegistry.setUrlPathHelper(pathHelper);
-		this.endpointRegistry.addEndpoint("/stompOverWebSocket");
-		this.endpointRegistry.addEndpoint("/stompOverSockJS").withSockJS();
+    @Test
+    public void stompProtocolHandler() {
+        this.endpointRegistry.addEndpoint("/stomp");
 
-		//SPR-12403
-		assertThat(this.webSocketHandler.getProtocolHandlers().size()).isEqualTo(1);
+        Map<String, SubProtocolHandler> protocolHandlers = webSocketHandler.getProtocolHandlerMap();
+        assertThat(protocolHandlers.size()).isEqualTo(3);
+        assertThat(protocolHandlers.get("v10.stomp")).isNotNull();
+        assertThat(protocolHandlers.get("v11.stomp")).isNotNull();
+        assertThat(protocolHandlers.get("v12.stomp")).isNotNull();
+    }
 
-		hm = (SimpleUrlHandlerMapping) this.endpointRegistry.getHandlerMapping();
-		assertThat(hm.getUrlMap().size()).isEqualTo(2);
-		assertThat(hm.getUrlMap().get("/stompOverWebSocket")).isNotNull();
-		assertThat(hm.getUrlMap().get("/stompOverSockJS/**")).isNotNull();
-		assertThat(hm.getUrlPathHelper()).isSameAs(pathHelper);
-	}
+    @Test
+    public void handlerMapping() {
+        SimpleUrlHandlerMapping hm = (SimpleUrlHandlerMapping) this.endpointRegistry.getHandlerMapping();
+        assertThat(hm.getUrlMap().size()).isEqualTo(0);
 
-	@Test
-	public void errorHandler() throws Exception {
-		StompSubProtocolErrorHandler errorHandler = mock(StompSubProtocolErrorHandler.class);
-		this.endpointRegistry.setErrorHandler(errorHandler);
-		this.endpointRegistry.addEndpoint("/stompOverWebSocket");
+        UrlPathHelper pathHelper = new UrlPathHelper();
+        this.endpointRegistry.setUrlPathHelper(pathHelper);
+        this.endpointRegistry.addEndpoint("/stompOverWebSocket");
+        this.endpointRegistry.addEndpoint("/stompOverSockJS").withSockJS();
 
-		Map<String, SubProtocolHandler> protocolHandlers = this.webSocketHandler.getProtocolHandlerMap();
-		StompSubProtocolHandler stompHandler = (StompSubProtocolHandler) protocolHandlers.get("v12.stomp");
-		assertThat(stompHandler.getErrorHandler()).isSameAs(errorHandler);
-	}
+        //SPR-12403
+        assertThat(this.webSocketHandler.getProtocolHandlers().size()).isEqualTo(1);
+
+        hm = (SimpleUrlHandlerMapping) this.endpointRegistry.getHandlerMapping();
+        assertThat(hm.getUrlMap().size()).isEqualTo(2);
+        assertThat(hm.getUrlMap().get("/stompOverWebSocket")).isNotNull();
+        assertThat(hm.getUrlMap().get("/stompOverSockJS/**")).isNotNull();
+        assertThat(hm.getUrlPathHelper()).isSameAs(pathHelper);
+    }
+
+    @Test
+    public void errorHandler() throws Exception {
+        StompSubProtocolErrorHandler errorHandler = mock(StompSubProtocolErrorHandler.class);
+        this.endpointRegistry.setErrorHandler(errorHandler);
+        this.endpointRegistry.addEndpoint("/stompOverWebSocket");
+
+        Map<String, SubProtocolHandler> protocolHandlers = this.webSocketHandler.getProtocolHandlerMap();
+        StompSubProtocolHandler stompHandler = (StompSubProtocolHandler) protocolHandlers.get("v12.stomp");
+        assertThat(stompHandler.getErrorHandler()).isSameAs(errorHandler);
+    }
 
 }

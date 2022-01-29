@@ -16,10 +16,9 @@
 
 package org.springframework.web.reactive.resource;
 
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.io.Resource;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 /**
  * An abstraction for transforming the content of a resource.
@@ -30,14 +29,15 @@ import org.springframework.web.server.ServerWebExchange;
 @FunctionalInterface
 public interface ResourceTransformer {
 
-	/**
-	 * Transform the given resource.
-	 * @param exchange the current exchange
-	 * @param resource the resource to transform
-	 * @param transformerChain the chain of remaining transformers to delegate to
-	 * @return the transformed resource (never empty)
-	 */
-	Mono<Resource> transform(ServerWebExchange exchange, Resource resource,
-			ResourceTransformerChain transformerChain);
+    /**
+     * Transform the given resource.
+     *
+     * @param exchange         the current exchange
+     * @param resource         the resource to transform
+     * @param transformerChain the chain of remaining transformers to delegate to
+     * @return the transformed resource (never empty)
+     */
+    Mono<Resource> transform(ServerWebExchange exchange, Resource resource,
+                             ResourceTransformerChain transformerChain);
 
 }

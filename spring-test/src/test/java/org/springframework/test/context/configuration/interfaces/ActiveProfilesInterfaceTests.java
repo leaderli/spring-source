@@ -18,7 +18,6 @@ package org.springframework.test.context.configuration.interfaces;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,31 +34,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 public class ActiveProfilesInterfaceTests implements ActiveProfilesTestInterface {
 
-	@Autowired
-	Employee employee;
+    @Autowired
+    Employee employee;
 
 
-	@Test
-	public void profileFromTestInterface() {
-		assertThat(employee).isNotNull();
-		assertThat(employee.getName()).isEqualTo("dev");
-	}
+    @Test
+    public void profileFromTestInterface() {
+        assertThat(employee).isNotNull();
+        assertThat(employee.getName()).isEqualTo("dev");
+    }
 
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		@Profile("dev")
-		Employee employee1() {
-			return new Employee("dev");
-		}
+        @Bean
+        @Profile("dev")
+        Employee employee1() {
+            return new Employee("dev");
+        }
 
-		@Bean
-		@Profile("prod")
-		Employee employee2() {
-			return new Employee("prod");
-		}
-	}
+        @Bean
+        @Profile("prod")
+        Employee employee2() {
+            return new Employee("prod");
+        }
+    }
 
 }

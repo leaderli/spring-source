@@ -17,7 +17,6 @@
 package org.springframework.test.context.env.repeatable;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -31,9 +30,9 @@ import org.springframework.test.context.TestPropertySource;
 @MetaComposedTestProperty
 public class MetaInlinedPropertyOverridesMetaMetaInlinedPropertyTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	public void test() {
-		assertEnvironmentValue("enigma", "meta");
-	}
+    @Test
+    public void test() {
+        assertEnvironmentValue("enigma", "meta");
+    }
 
 }

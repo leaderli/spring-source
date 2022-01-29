@@ -16,15 +16,11 @@
 
 package org.springframework.web.socket.messaging;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
@@ -32,6 +28,9 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TestWebSocketSession;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -50,144 +49,148 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class SubProtocolWebSocketHandlerTests {
 
-	@Mock SubProtocolHandler stompHandler;
+    @Mock
+    SubProtocolHandler stompHandler;
 
-	@Mock SubProtocolHandler mqttHandler;
+    @Mock
+    SubProtocolHandler mqttHandler;
 
-	@Mock SubProtocolHandler defaultHandler;
+    @Mock
+    SubProtocolHandler defaultHandler;
 
-	@Mock MessageChannel inClientChannel;
+    @Mock
+    MessageChannel inClientChannel;
 
-	@Mock
-	SubscribableChannel outClientChannel;
+    @Mock
+    SubscribableChannel outClientChannel;
 
-	private SubProtocolWebSocketHandler webSocketHandler;
+    private SubProtocolWebSocketHandler webSocketHandler;
 
-	private TestWebSocketSession session;
-
-
-	@Before
-	public void setup() {
-		this.webSocketHandler = new SubProtocolWebSocketHandler(this.inClientChannel, this.outClientChannel);
-		given(stompHandler.getSupportedProtocols()).willReturn(Arrays.asList("v10.stomp", "v11.stomp", "v12.stomp"));
-		given(mqttHandler.getSupportedProtocols()).willReturn(Arrays.asList("MQTT"));
-		this.session = new TestWebSocketSession();
-		this.session.setId("1");
-		this.session.setOpen(true);
-	}
+    private TestWebSocketSession session;
 
 
-	@Test
-	public void subProtocolMatch() throws Exception {
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
-		this.session.setAcceptedProtocol("v12.sToMp");
-		this.webSocketHandler.afterConnectionEstablished(session);
+    @Before
+    public void setup() {
+        this.webSocketHandler = new SubProtocolWebSocketHandler(this.inClientChannel, this.outClientChannel);
+        given(stompHandler.getSupportedProtocols()).willReturn(Arrays.asList("v10.stomp", "v11.stomp", "v12.stomp"));
+        given(mqttHandler.getSupportedProtocols()).willReturn(Arrays.asList("MQTT"));
+        this.session = new TestWebSocketSession();
+        this.session.setId("1");
+        this.session.setOpen(true);
+    }
 
-		verify(this.stompHandler).afterSessionStarted(
-				isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
-		verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
-	}
 
-	@Test
-	public void subProtocolDefaultHandlerOnly() throws Exception {
-		this.webSocketHandler.setDefaultProtocolHandler(stompHandler);
-		this.session.setAcceptedProtocol("v12.sToMp");
-		this.webSocketHandler.afterConnectionEstablished(session);
+    @Test
+    public void subProtocolMatch() throws Exception {
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
+        this.session.setAcceptedProtocol("v12.sToMp");
+        this.webSocketHandler.afterConnectionEstablished(session);
 
-		verify(this.stompHandler).afterSessionStarted(
-				isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
-	}
+        verify(this.stompHandler).afterSessionStarted(
+                isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
+        verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
+    }
 
-	@Test
-	public void subProtocolNoMatch() throws Exception {
-		this.webSocketHandler.setDefaultProtocolHandler(defaultHandler);
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
-		this.session.setAcceptedProtocol("wamp");
+    @Test
+    public void subProtocolDefaultHandlerOnly() throws Exception {
+        this.webSocketHandler.setDefaultProtocolHandler(stompHandler);
+        this.session.setAcceptedProtocol("v12.sToMp");
+        this.webSocketHandler.afterConnectionEstablished(session);
 
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.webSocketHandler.afterConnectionEstablished(session));
-	}
+        verify(this.stompHandler).afterSessionStarted(
+                isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
+    }
 
-	@Test
-	public void nullSubProtocol() throws Exception {
-		this.webSocketHandler.setDefaultProtocolHandler(defaultHandler);
-		this.webSocketHandler.afterConnectionEstablished(session);
+    @Test
+    public void subProtocolNoMatch() throws Exception {
+        this.webSocketHandler.setDefaultProtocolHandler(defaultHandler);
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
+        this.session.setAcceptedProtocol("wamp");
 
-		verify(this.defaultHandler).afterSessionStarted(
-				isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
-		verify(this.stompHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
-		verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
-	}
+        assertThatIllegalStateException().isThrownBy(() ->
+                this.webSocketHandler.afterConnectionEstablished(session));
+    }
 
-	@Test
-	public void emptySubProtocol() throws Exception {
-		this.session.setAcceptedProtocol("");
-		this.webSocketHandler.setDefaultProtocolHandler(this.defaultHandler);
-		this.webSocketHandler.afterConnectionEstablished(session);
+    @Test
+    public void nullSubProtocol() throws Exception {
+        this.webSocketHandler.setDefaultProtocolHandler(defaultHandler);
+        this.webSocketHandler.afterConnectionEstablished(session);
 
-		verify(this.defaultHandler).afterSessionStarted(
-				isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
-		verify(this.stompHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
-		verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
-	}
+        verify(this.defaultHandler).afterSessionStarted(
+                isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
+        verify(this.stompHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
+        verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
+    }
 
-	@Test
-	public void noSubProtocolOneHandler() throws Exception {
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler));
-		this.webSocketHandler.afterConnectionEstablished(session);
+    @Test
+    public void emptySubProtocol() throws Exception {
+        this.session.setAcceptedProtocol("");
+        this.webSocketHandler.setDefaultProtocolHandler(this.defaultHandler);
+        this.webSocketHandler.afterConnectionEstablished(session);
 
-		verify(this.stompHandler).afterSessionStarted(
-				isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
-	}
+        verify(this.defaultHandler).afterSessionStarted(
+                isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
+        verify(this.stompHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
+        verify(this.mqttHandler, times(0)).afterSessionStarted(session, this.inClientChannel);
+    }
 
-	@Test
-	public void noSubProtocolTwoHandlers() throws Exception {
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.webSocketHandler.afterConnectionEstablished(session));
-	}
+    @Test
+    public void noSubProtocolOneHandler() throws Exception {
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler));
+        this.webSocketHandler.afterConnectionEstablished(session);
 
-	@Test
-	public void noSubProtocolNoDefaultHandler() throws Exception {
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.webSocketHandler.afterConnectionEstablished(session));
-	}
+        verify(this.stompHandler).afterSessionStarted(
+                isA(ConcurrentWebSocketSessionDecorator.class), eq(this.inClientChannel));
+    }
 
-	@Test
-	@SuppressWarnings("unchecked")
-	public void checkSession() throws Exception {
-		TestWebSocketSession session1 = new TestWebSocketSession("id1");
-		TestWebSocketSession session2 = new TestWebSocketSession("id2");
-		session1.setOpen(true);
-		session2.setOpen(true);
-		session1.setAcceptedProtocol("v12.stomp");
-		session2.setAcceptedProtocol("v12.stomp");
+    @Test
+    public void noSubProtocolTwoHandlers() throws Exception {
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
+        assertThatIllegalStateException().isThrownBy(() ->
+                this.webSocketHandler.afterConnectionEstablished(session));
+    }
 
-		this.webSocketHandler.setProtocolHandlers(Arrays.asList(this.stompHandler));
-		this.webSocketHandler.afterConnectionEstablished(session1);
-		this.webSocketHandler.afterConnectionEstablished(session2);
+    @Test
+    public void noSubProtocolNoDefaultHandler() throws Exception {
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(stompHandler, mqttHandler));
+        assertThatIllegalStateException().isThrownBy(() ->
+                this.webSocketHandler.afterConnectionEstablished(session));
+    }
 
-		DirectFieldAccessor handlerAccessor = new DirectFieldAccessor(this.webSocketHandler);
-		Map<String, ?> map = (Map<String, ?>) handlerAccessor.getPropertyValue("sessions");
-		DirectFieldAccessor session1Accessor = new DirectFieldAccessor(map.get("id1"));
-		DirectFieldAccessor session2Accessor = new DirectFieldAccessor(map.get("id2"));
+    @Test
+    @SuppressWarnings("unchecked")
+    public void checkSession() throws Exception {
+        TestWebSocketSession session1 = new TestWebSocketSession("id1");
+        TestWebSocketSession session2 = new TestWebSocketSession("id2");
+        session1.setOpen(true);
+        session2.setOpen(true);
+        session1.setAcceptedProtocol("v12.stomp");
+        session2.setAcceptedProtocol("v12.stomp");
 
-		long sixtyOneSecondsAgo = System.currentTimeMillis() - 61 * 1000;
-		handlerAccessor.setPropertyValue("lastSessionCheckTime", sixtyOneSecondsAgo);
-		session1Accessor.setPropertyValue("createTime", sixtyOneSecondsAgo);
-		session2Accessor.setPropertyValue("createTime", sixtyOneSecondsAgo);
+        this.webSocketHandler.setProtocolHandlers(Arrays.asList(this.stompHandler));
+        this.webSocketHandler.afterConnectionEstablished(session1);
+        this.webSocketHandler.afterConnectionEstablished(session2);
 
-		this.webSocketHandler.start();
-		this.webSocketHandler.handleMessage(session1, new TextMessage("foo"));
+        DirectFieldAccessor handlerAccessor = new DirectFieldAccessor(this.webSocketHandler);
+        Map<String, ?> map = (Map<String, ?>) handlerAccessor.getPropertyValue("sessions");
+        DirectFieldAccessor session1Accessor = new DirectFieldAccessor(map.get("id1"));
+        DirectFieldAccessor session2Accessor = new DirectFieldAccessor(map.get("id2"));
 
-		assertThat(session1.isOpen()).isTrue();
-		assertThat(session1.getCloseStatus()).isNull();
+        long sixtyOneSecondsAgo = System.currentTimeMillis() - 61 * 1000;
+        handlerAccessor.setPropertyValue("lastSessionCheckTime", sixtyOneSecondsAgo);
+        session1Accessor.setPropertyValue("createTime", sixtyOneSecondsAgo);
+        session2Accessor.setPropertyValue("createTime", sixtyOneSecondsAgo);
 
-		assertThat(session2.isOpen()).isFalse();
-		assertThat(session2.getCloseStatus()).isEqualTo(CloseStatus.SESSION_NOT_RELIABLE);
+        this.webSocketHandler.start();
+        this.webSocketHandler.handleMessage(session1, new TextMessage("foo"));
 
-		assertThat(handlerAccessor.getPropertyValue("lastSessionCheckTime")).as("lastSessionCheckTime not updated").isNotEqualTo(sixtyOneSecondsAgo);
-	}
+        assertThat(session1.isOpen()).isTrue();
+        assertThat(session1.getCloseStatus()).isNull();
+
+        assertThat(session2.isOpen()).isFalse();
+        assertThat(session2.getCloseStatus()).isEqualTo(CloseStatus.SESSION_NOT_RELIABLE);
+
+        assertThat(handlerAccessor.getPropertyValue("lastSessionCheckTime")).as("lastSessionCheckTime not updated").isNotEqualTo(sixtyOneSecondsAgo);
+    }
 
 }

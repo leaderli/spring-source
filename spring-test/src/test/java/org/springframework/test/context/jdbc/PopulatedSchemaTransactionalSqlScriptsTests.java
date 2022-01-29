@@ -17,7 +17,6 @@
 package org.springframework.test.context.jdbc;
 
 import org.junit.Test;
-
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -37,20 +36,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class PopulatedSchemaTransactionalSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@BeforeTransaction
-	@AfterTransaction
-	public void verifyPreAndPostTransactionDatabaseState() {
-		assertNumUsers(0);
-	}
+    @BeforeTransaction
+    @AfterTransaction
+    public void verifyPreAndPostTransactionDatabaseState() {
+        assertNumUsers(0);
+    }
 
-	@Test
-	@SqlGroup(@Sql("data-add-dogbert.sql"))
-	public void methodLevelScripts() {
-		assertNumUsers(1);
-	}
+    @Test
+    @SqlGroup(@Sql("data-add-dogbert.sql"))
+    public void methodLevelScripts() {
+        assertNumUsers(1);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+    protected void assertNumUsers(int expected) {
+        assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+    }
 
 }

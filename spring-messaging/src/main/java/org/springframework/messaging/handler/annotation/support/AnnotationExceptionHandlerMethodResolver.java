@@ -16,17 +16,13 @@
 
 package org.springframework.messaging.handler.annotation.support;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.invocation.AbstractExceptionHandlerMethodResolver;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * A sub-class of {@link AbstractExceptionHandlerMethodResolver} that looks for
@@ -40,35 +36,36 @@ import org.springframework.messaging.handler.invocation.AbstractExceptionHandler
  */
 public class AnnotationExceptionHandlerMethodResolver extends AbstractExceptionHandlerMethodResolver {
 
-	/**
-	 * A constructor that finds {@link MessageExceptionHandler} methods in the given type.
-	 * @param handlerType the type to introspect
-	 */
-	public AnnotationExceptionHandlerMethodResolver(Class<?> handlerType) {
-		super(initExceptionMappings(handlerType));
-	}
+    /**
+     * A constructor that finds {@link MessageExceptionHandler} methods in the given type.
+     *
+     * @param handlerType the type to introspect
+     */
+    public AnnotationExceptionHandlerMethodResolver(Class<?> handlerType) {
+        super(initExceptionMappings(handlerType));
+    }
 
-	private static Map<Class<? extends Throwable>, Method> initExceptionMappings(Class<?> handlerType) {
-		Map<Method, MessageExceptionHandler> methods = MethodIntrospector.selectMethods(handlerType,
-				(MethodIntrospector.MetadataLookup<MessageExceptionHandler>) method ->
-						AnnotatedElementUtils.findMergedAnnotation(method, MessageExceptionHandler.class));
+    private static Map<Class<? extends Throwable>, Method> initExceptionMappings(Class<?> handlerType) {
+        Map<Method, MessageExceptionHandler> methods = MethodIntrospector.selectMethods(handlerType,
+                (MethodIntrospector.MetadataLookup<MessageExceptionHandler>) method ->
+                        AnnotatedElementUtils.findMergedAnnotation(method, MessageExceptionHandler.class));
 
-		Map<Class<? extends Throwable>, Method> result = new HashMap<>();
-		for (Map.Entry<Method, MessageExceptionHandler> entry : methods.entrySet()) {
-			Method method = entry.getKey();
-			List<Class<? extends Throwable>> exceptionTypes = new ArrayList<>(Arrays.asList(entry.getValue().value()));
-			if (exceptionTypes.isEmpty()) {
-				exceptionTypes.addAll(getExceptionsFromMethodSignature(method));
-			}
-			for (Class<? extends Throwable> exceptionType : exceptionTypes) {
-				Method oldMethod = result.put(exceptionType, method);
-				if (oldMethod != null && !oldMethod.equals(method)) {
-					throw new IllegalStateException("Ambiguous @ExceptionHandler method mapped for [" +
-							exceptionType + "]: {" + oldMethod + ", " + method + "}");
-				}
-			}
-		}
-		return result;
-	}
+        Map<Class<? extends Throwable>, Method> result = new HashMap<>();
+        for (Map.Entry<Method, MessageExceptionHandler> entry : methods.entrySet()) {
+            Method method = entry.getKey();
+            List<Class<? extends Throwable>> exceptionTypes = new ArrayList<>(Arrays.asList(entry.getValue().value()));
+            if (exceptionTypes.isEmpty()) {
+                exceptionTypes.addAll(getExceptionsFromMethodSignature(method));
+            }
+            for (Class<? extends Throwable> exceptionType : exceptionTypes) {
+                Method oldMethod = result.put(exceptionType, method);
+                if (oldMethod != null && !oldMethod.equals(method)) {
+                    throw new IllegalStateException("Ambiguous @ExceptionHandler method mapped for [" +
+                            exceptionType + "]: {" + oldMethod + ", " + method + "}");
+                }
+            }
+        }
+        return result;
+    }
 
 }

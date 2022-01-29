@@ -16,8 +16,6 @@
 
 package org.springframework.test.web.servlet.htmlunit.webdriver;
 
-import java.io.IOException;
-
 import com.gargoylesoftware.htmlunit.WebConnection;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import org.junit.Before;
@@ -27,9 +25,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.openqa.selenium.WebDriverException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -43,34 +41,34 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class WebConnectionHtmlUnitDriverTests {
 
-	private final WebConnectionHtmlUnitDriver driver = new WebConnectionHtmlUnitDriver();
+    private final WebConnectionHtmlUnitDriver driver = new WebConnectionHtmlUnitDriver();
 
-	@Mock
-	private WebConnection connection;
+    @Mock
+    private WebConnection connection;
 
-	@Before
-	public void setup() throws Exception {
-		given(this.connection.getResponse(any(WebRequest.class))).willThrow(new IOException(""));
-	}
+    @Before
+    public void setup() throws Exception {
+        given(this.connection.getResponse(any(WebRequest.class))).willThrow(new IOException(""));
+    }
 
 
-	@Test
-	public void getWebConnectionDefaultNotNull() {
-		assertThat(this.driver.getWebConnection()).isNotNull();
-	}
+    @Test
+    public void getWebConnectionDefaultNotNull() {
+        assertThat(this.driver.getWebConnection()).isNotNull();
+    }
 
-	@Test
-	public void setWebConnectionToNull() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				this.driver.setWebConnection(null));
-	}
+    @Test
+    public void setWebConnectionToNull() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                this.driver.setWebConnection(null));
+    }
 
-	@Test
-	public void setWebConnection() {
-		this.driver.setWebConnection(this.connection);
-		assertThat(this.driver.getWebConnection()).isEqualTo(this.connection);
-		assertThatExceptionOfType(WebDriverException.class).isThrownBy(() ->
-				this.driver.get("https://example.com"));
-	}
+    @Test
+    public void setWebConnection() {
+        this.driver.setWebConnection(this.connection);
+        assertThat(this.driver.getWebConnection()).isEqualTo(this.connection);
+        assertThatExceptionOfType(WebDriverException.class).isThrownBy(() ->
+                this.driver.get("https://example.com"));
+    }
 
 }

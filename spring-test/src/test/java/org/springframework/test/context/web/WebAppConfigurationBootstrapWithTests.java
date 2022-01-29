@@ -18,7 +18,6 @@ package org.springframework.test.context.web;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -45,33 +44,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 @BootstrapWith(CustomWebTestContextBootstrapper.class)
 public class WebAppConfigurationBootstrapWithTests {
 
-	@Autowired
-	WebApplicationContext wac;
+    @Autowired
+    WebApplicationContext wac;
 
 
-	@Test
-	public void webApplicationContextIsLoaded() {
-		// from: src/test/webapp/resources/Spring.js
-		Resource resource = wac.getResource("/resources/Spring.js");
-		assertThat(resource).isNotNull();
-		assertThat(resource.exists()).isTrue();
-	}
+    @Test
+    public void webApplicationContextIsLoaded() {
+        // from: src/test/webapp/resources/Spring.js
+        Resource resource = wac.getResource("/resources/Spring.js");
+        assertThat(resource).isNotNull();
+        assertThat(resource.exists()).isTrue();
+    }
 
 
-	@Configuration
-	static class Config {
-	}
+    @Configuration
+    static class Config {
+    }
 
-	/**
-	 * Custom {@link WebTestContextBootstrapper} that requires {@code @WebAppConfiguration}
-	 * but hard codes the resource base path.
-	 */
-	static class CustomWebTestContextBootstrapper extends WebTestContextBootstrapper {
+    /**
+     * Custom {@link WebTestContextBootstrapper} that requires {@code @WebAppConfiguration}
+     * but hard codes the resource base path.
+     */
+    static class CustomWebTestContextBootstrapper extends WebTestContextBootstrapper {
 
-		@Override
-		protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
-			return new WebMergedContextConfiguration(mergedConfig, "src/test/webapp");
-		}
-	}
+        @Override
+        protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
+            return new WebMergedContextConfiguration(mergedConfig, "src/test/webapp");
+        }
+    }
 
 }

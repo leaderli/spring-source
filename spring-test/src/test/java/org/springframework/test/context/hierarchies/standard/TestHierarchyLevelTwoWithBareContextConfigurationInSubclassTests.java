@@ -18,7 +18,6 @@ package org.springframework.test.context.hierarchies.standard;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -35,45 +34,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class TestHierarchyLevelTwoWithBareContextConfigurationInSubclassTests extends
-		TestHierarchyLevelOneWithBareContextConfigurationInSubclassTests {
+        TestHierarchyLevelOneWithBareContextConfigurationInSubclassTests {
 
-	@Configuration
-	static class Config {
+    @Autowired
+    private String foo;
+    @Autowired
+    private String bar;
+    @Autowired
+    private String baz;
+    @Autowired
+    private ApplicationContext context;
 
-		@Bean
-		public String foo() {
-			return "foo-level-2";
-		}
+    @Test
+    @Override
+    public void loadContextHierarchy() {
+        assertThat(context).as("child ApplicationContext").isNotNull();
+        assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
+        assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
+        assertThat(foo).isEqualTo("foo-level-2");
+        assertThat(bar).isEqualTo("bar");
+        assertThat(baz).isEqualTo("baz");
+    }
 
-		@Bean
-		public String baz() {
-			return "baz";
-		}
-	}
+    @Configuration
+    static class Config {
 
+        @Bean
+        public String foo() {
+            return "foo-level-2";
+        }
 
-	@Autowired
-	private String foo;
-
-	@Autowired
-	private String bar;
-
-	@Autowired
-	private String baz;
-
-	@Autowired
-	private ApplicationContext context;
-
-
-	@Test
-	@Override
-	public void loadContextHierarchy() {
-		assertThat(context).as("child ApplicationContext").isNotNull();
-		assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
-		assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
-		assertThat(foo).isEqualTo("foo-level-2");
-		assertThat(bar).isEqualTo("bar");
-		assertThat(baz).isEqualTo("baz");
-	}
+        @Bean
+        public String baz() {
+            return "baz";
+        }
+    }
 
 }

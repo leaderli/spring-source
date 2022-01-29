@@ -16,9 +16,9 @@
 
 package org.springframework.mock.web;
 
-import javax.servlet.jsp.PageContext;
-
 import org.junit.Test;
+
+import javax.servlet.jsp.PageContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,30 +29,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MockPageContextTests {
 
-	private final String key = "foo";
+    private final String key = "foo";
 
-	private final String value = "bar";
+    private final String value = "bar";
 
-	private final MockPageContext ctx = new MockPageContext();
+    private final MockPageContext ctx = new MockPageContext();
 
-	@Test
-	public void setAttributeWithNoScopeUsesPageScope() throws Exception {
-		ctx.setAttribute(key, value);
-		assertThat(ctx.getAttribute(key, PageContext.PAGE_SCOPE)).isEqualTo(value);
-		assertThat(ctx.getAttribute(key, PageContext.APPLICATION_SCOPE)).isNull();
-		assertThat(ctx.getAttribute(key, PageContext.REQUEST_SCOPE)).isNull();
-		assertThat(ctx.getAttribute(key, PageContext.SESSION_SCOPE)).isNull();
-	}
+    @Test
+    public void setAttributeWithNoScopeUsesPageScope() throws Exception {
+        ctx.setAttribute(key, value);
+        assertThat(ctx.getAttribute(key, PageContext.PAGE_SCOPE)).isEqualTo(value);
+        assertThat(ctx.getAttribute(key, PageContext.APPLICATION_SCOPE)).isNull();
+        assertThat(ctx.getAttribute(key, PageContext.REQUEST_SCOPE)).isNull();
+        assertThat(ctx.getAttribute(key, PageContext.SESSION_SCOPE)).isNull();
+    }
 
-	@Test
-	public void removeAttributeWithNoScopeSpecifiedRemovesValueFromAllScopes() throws Exception {
-		ctx.setAttribute(key, value, PageContext.APPLICATION_SCOPE);
-		ctx.removeAttribute(key);
+    @Test
+    public void removeAttributeWithNoScopeSpecifiedRemovesValueFromAllScopes() throws Exception {
+        ctx.setAttribute(key, value, PageContext.APPLICATION_SCOPE);
+        ctx.removeAttribute(key);
 
-		assertThat(ctx.getAttribute(key, PageContext.PAGE_SCOPE)).isNull();
-		assertThat(ctx.getAttribute(key, PageContext.APPLICATION_SCOPE)).isNull();
-		assertThat(ctx.getAttribute(key, PageContext.REQUEST_SCOPE)).isNull();
-		assertThat(ctx.getAttribute(key, PageContext.SESSION_SCOPE)).isNull();
-	}
+        assertThat(ctx.getAttribute(key, PageContext.PAGE_SCOPE)).isNull();
+        assertThat(ctx.getAttribute(key, PageContext.APPLICATION_SCOPE)).isNull();
+        assertThat(ctx.getAttribute(key, PageContext.REQUEST_SCOPE)).isNull();
+        assertThat(ctx.getAttribute(key, PageContext.SESSION_SCOPE)).isNull();
+    }
 
 }

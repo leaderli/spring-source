@@ -18,7 +18,6 @@ package org.springframework.test.context.env;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -40,23 +39,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource("explicit.properties")
 public class ExplicitPropertiesFileTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+    @Autowired
+    protected Environment env;
 
 
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		String userHomeKey = "user.home";
-		assertThat(env.getProperty(userHomeKey)).isEqualTo(System.getProperty(userHomeKey));
-		assertThat(env.getProperty("explicit")).isEqualTo("enigma");
-	}
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        String userHomeKey = "user.home";
+        assertThat(env.getProperty(userHomeKey)).isEqualTo(System.getProperty(userHomeKey));
+        assertThat(env.getProperty("explicit")).isEqualTo("enigma");
+    }
 
 
-	// -------------------------------------------------------------------
+    // -------------------------------------------------------------------
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @Configuration
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

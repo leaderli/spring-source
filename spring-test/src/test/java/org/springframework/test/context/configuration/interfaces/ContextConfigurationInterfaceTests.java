@@ -18,7 +18,6 @@ package org.springframework.test.context.configuration.interfaces;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.tests.sample.beans.Employee;
@@ -32,14 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 public class ContextConfigurationInterfaceTests implements ContextConfigurationTestInterface {
 
-	@Autowired
-	Employee employee;
+    @Autowired
+    Employee employee;
 
 
-	@Test
-	public void profileFromTestInterface() {
-		assertThat(employee).isNotNull();
-		assertThat(employee.getName()).isEqualTo("Dilbert");
-	}
+    @Test
+    public void profileFromTestInterface() {
+        assertThat(employee).isNotNull();
+        assertThat(employee.getName()).isEqualTo("Dilbert");
+    }
 
 }

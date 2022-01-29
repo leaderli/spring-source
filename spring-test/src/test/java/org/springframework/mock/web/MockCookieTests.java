@@ -31,90 +31,90 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class MockCookieTests {
 
 
-	@Test
-	public void constructCookie() {
-		MockCookie cookie = new MockCookie("SESSION", "123");
+    @Test
+    public void constructCookie() {
+        MockCookie cookie = new MockCookie("SESSION", "123");
 
-		assertCookie(cookie, "SESSION", "123");
-		assertThat(cookie.getDomain()).isNull();
-		assertThat(cookie.getMaxAge()).isEqualTo(-1);
-		assertThat(cookie.getPath()).isNull();
-		assertThat(cookie.isHttpOnly()).isFalse();
-		assertThat(cookie.getSecure()).isFalse();
-		assertThat(cookie.getSameSite()).isNull();
-	}
+        assertCookie(cookie, "SESSION", "123");
+        assertThat(cookie.getDomain()).isNull();
+        assertThat(cookie.getMaxAge()).isEqualTo(-1);
+        assertThat(cookie.getPath()).isNull();
+        assertThat(cookie.isHttpOnly()).isFalse();
+        assertThat(cookie.getSecure()).isFalse();
+        assertThat(cookie.getSameSite()).isNull();
+    }
 
-	@Test
-	public void setSameSite() {
-		MockCookie cookie = new MockCookie("SESSION", "123");
-		cookie.setSameSite("Strict");
+    @Test
+    public void setSameSite() {
+        MockCookie cookie = new MockCookie("SESSION", "123");
+        cookie.setSameSite("Strict");
 
-		assertThat(cookie.getSameSite()).isEqualTo("Strict");
-	}
+        assertThat(cookie.getSameSite()).isEqualTo("Strict");
+    }
 
-	@Test
-	public void parseHeaderWithoutAttributes() {
-		MockCookie cookie = MockCookie.parse("SESSION=123");
-		assertCookie(cookie, "SESSION", "123");
+    @Test
+    public void parseHeaderWithoutAttributes() {
+        MockCookie cookie = MockCookie.parse("SESSION=123");
+        assertCookie(cookie, "SESSION", "123");
 
-		cookie = MockCookie.parse("SESSION=123;");
-		assertCookie(cookie, "SESSION", "123");
-	}
+        cookie = MockCookie.parse("SESSION=123;");
+        assertCookie(cookie, "SESSION", "123");
+    }
 
-	@Test
-	public void parseHeaderWithAttributes() {
-		MockCookie cookie = MockCookie.parse(
-				"SESSION=123; Domain=example.com; Max-Age=60; Path=/; Secure; HttpOnly; SameSite=Lax");
+    @Test
+    public void parseHeaderWithAttributes() {
+        MockCookie cookie = MockCookie.parse(
+                "SESSION=123; Domain=example.com; Max-Age=60; Path=/; Secure; HttpOnly; SameSite=Lax");
 
-		assertCookie(cookie, "SESSION", "123");
-		assertThat(cookie.getDomain()).isEqualTo("example.com");
-		assertThat(cookie.getMaxAge()).isEqualTo(60);
-		assertThat(cookie.getPath()).isEqualTo("/");
-		assertThat(cookie.getSecure()).isTrue();
-		assertThat(cookie.isHttpOnly()).isTrue();
-		assertThat(cookie.getSameSite()).isEqualTo("Lax");
-	}
+        assertCookie(cookie, "SESSION", "123");
+        assertThat(cookie.getDomain()).isEqualTo("example.com");
+        assertThat(cookie.getMaxAge()).isEqualTo(60);
+        assertThat(cookie.getPath()).isEqualTo("/");
+        assertThat(cookie.getSecure()).isTrue();
+        assertThat(cookie.isHttpOnly()).isTrue();
+        assertThat(cookie.getSameSite()).isEqualTo("Lax");
+    }
 
-	private void assertCookie(MockCookie cookie, String name, String value) {
-		assertThat(cookie.getName()).isEqualTo(name);
-		assertThat(cookie.getValue()).isEqualTo(value);
-	}
+    private void assertCookie(MockCookie cookie, String name, String value) {
+        assertThat(cookie.getName()).isEqualTo(name);
+        assertThat(cookie.getValue()).isEqualTo(value);
+    }
 
-	@Test
-	public void parseNullHeader() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				MockCookie.parse(null))
-			.withMessageContaining("Set-Cookie header must not be null");
-	}
+    @Test
+    public void parseNullHeader() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                MockCookie.parse(null))
+                .withMessageContaining("Set-Cookie header must not be null");
+    }
 
-	@Test
-	public void parseInvalidHeader() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				MockCookie.parse("BOOM"))
-			.withMessageContaining("Invalid Set-Cookie header 'BOOM'");
-	}
+    @Test
+    public void parseInvalidHeader() {
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                MockCookie.parse("BOOM"))
+                .withMessageContaining("Invalid Set-Cookie header 'BOOM'");
+    }
 
-	@Test
-	public void parseInvalidAttribute() {
-		String header = "SESSION=123; Path=";
+    @Test
+    public void parseInvalidAttribute() {
+        String header = "SESSION=123; Path=";
 
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				MockCookie.parse(header))
-			.withMessageContaining("No value in attribute 'Path' for Set-Cookie header '" + header + "'");
-	}
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                MockCookie.parse(header))
+                .withMessageContaining("No value in attribute 'Path' for Set-Cookie header '" + header + "'");
+    }
 
-	@Test
-	public void parseHeaderWithAttributesCaseSensitivity() {
-		MockCookie cookie = MockCookie.parse(
-				"SESSION=123; domain=example.com; max-age=60; path=/; secure; httponly; samesite=Lax");
+    @Test
+    public void parseHeaderWithAttributesCaseSensitivity() {
+        MockCookie cookie = MockCookie.parse(
+                "SESSION=123; domain=example.com; max-age=60; path=/; secure; httponly; samesite=Lax");
 
-		assertCookie(cookie, "SESSION", "123");
-		assertThat(cookie.getDomain()).isEqualTo("example.com");
-		assertThat(cookie.getMaxAge()).isEqualTo(60);
-		assertThat(cookie.getPath()).isEqualTo("/");
-		assertThat(cookie.getSecure()).isTrue();
-		assertThat(cookie.isHttpOnly()).isTrue();
-		assertThat(cookie.getSameSite()).isEqualTo("Lax");
-	}
+        assertCookie(cookie, "SESSION", "123");
+        assertThat(cookie.getDomain()).isEqualTo("example.com");
+        assertThat(cookie.getMaxAge()).isEqualTo(60);
+        assertThat(cookie.getPath()).isEqualTo("/");
+        assertThat(cookie.getSecure()).isTrue();
+        assertThat(cookie.isHttpOnly()).isTrue();
+        assertThat(cookie.getSameSite()).isEqualTo("Lax");
+    }
 
 }

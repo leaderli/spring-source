@@ -18,7 +18,6 @@ package org.springframework.test.context.groovy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,33 +31,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Groovy script (as opposed to a default XML config file).
  *
  * @author Sam Brannen
- * @since 4.1
  * @see DefaultScriptDetectionGroovySpringContextTestsContext
+ * @since 4.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 // Config loaded from DefaultScriptDetectionGroovySpringContextTestsContext.groovy
 @ContextConfiguration
 public class DefaultScriptDetectionGroovySpringContextTests {
 
-	@Autowired
-	private Employee employee;
+    @Autowired
+    protected String foo;
+    @Autowired
+    private Employee employee;
+    @Autowired
+    private Pet pet;
 
-	@Autowired
-	private Pet pet;
+    @Test
+    public final void verifyAnnotationAutowiredFields() {
+        assertThat(this.employee).as("The employee field should have been autowired.").isNotNull();
+        assertThat(this.employee.getName()).isEqualTo("Dilbert");
 
-	@Autowired
-	protected String foo;
+        assertThat(this.pet).as("The pet field should have been autowired.").isNotNull();
+        assertThat(this.pet.getName()).isEqualTo("Dogbert");
 
-
-	@Test
-	public final void verifyAnnotationAutowiredFields() {
-		assertThat(this.employee).as("The employee field should have been autowired.").isNotNull();
-		assertThat(this.employee.getName()).isEqualTo("Dilbert");
-
-		assertThat(this.pet).as("The pet field should have been autowired.").isNotNull();
-		assertThat(this.pet.getName()).isEqualTo("Dogbert");
-
-		assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Foo");
-	}
+        assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Foo");
+    }
 
 }

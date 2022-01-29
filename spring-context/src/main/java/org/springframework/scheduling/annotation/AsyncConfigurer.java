@@ -16,10 +16,10 @@
 
 package org.springframework.scheduling.annotation;
 
-import java.util.concurrent.Executor;
-
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.lang.Nullable;
+
+import java.util.concurrent.Executor;
 
 /**
  * Interface to be implemented by @{@link org.springframework.context.annotation.Configuration
@@ -37,30 +37,30 @@ import org.springframework.lang.Nullable;
  *
  * @author Chris Beams
  * @author Stephane Nicoll
- * @since 3.1
  * @see AbstractAsyncConfiguration
  * @see EnableAsync
  * @see AsyncConfigurerSupport
+ * @since 3.1
  */
 public interface AsyncConfigurer {
 
-	/**
-	 * The {@link Executor} instance to be used when processing async
-	 * method invocations.
-	 */
-	@Nullable
-	default Executor getAsyncExecutor() {
-		return null;
-	}
+    /**
+     * The {@link Executor} instance to be used when processing async
+     * method invocations.
+     */
+    @Nullable
+    default Executor getAsyncExecutor() {
+        return null;
+    }
 
-	/**
-	 * The {@link AsyncUncaughtExceptionHandler} instance to be used
-	 * when an exception is thrown during an asynchronous method execution
-	 * with {@code void} return type.
-	 */
-	@Nullable
-	default AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-		return null;
-	}
+    /**
+     * The {@link AsyncUncaughtExceptionHandler} instance to be used
+     * when an exception is thrown during an asynchronous method execution
+     * with {@code void} return type.
+     */
+    @Nullable
+    default AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return null;
+    }
 
 }

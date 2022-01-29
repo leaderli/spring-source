@@ -17,7 +17,6 @@
 package org.springframework.test.context.env.repeatable;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -32,10 +31,10 @@ import org.springframework.test.context.TestPropertySource;
 @MetaInlinedTestProperty
 public class LocalInlinedPropertyAndMetaInlinedPropertyTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	public void test() {
-		assertEnvironmentValue("key1", "local");
-		assertEnvironmentValue("enigma", "meta");
-	}
+    @Test
+    public void test() {
+        assertEnvironmentValue("key1", "local");
+        assertEnvironmentValue("enigma", "meta");
+    }
 
 }

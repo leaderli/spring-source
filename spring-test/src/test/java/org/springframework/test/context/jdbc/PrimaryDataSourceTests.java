@@ -16,11 +16,8 @@
 
 package org.springframework.test.context.jdbc;
 
-import javax.sql.DataSource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +29,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
+import javax.sql.DataSource;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.transaction.TransactionAssert.assertThatTransaction;
 
@@ -40,49 +39,47 @@ import static org.springframework.test.transaction.TransactionAssert.assertThatT
  * supported.
  *
  * @author Sam Brannen
- * @since 4.3
  * @see org.springframework.test.context.transaction.PrimaryTransactionManagerTests
+ * @since 4.3
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @DirtiesContext
 public class PrimaryDataSourceTests {
 
-	@Configuration
-	static class Config {
+    private JdbcTemplate jdbcTemplate;
 
-		@Primary
-		@Bean
-		public DataSource primaryDataSource() {
-			// @formatter:off
-			return new EmbeddedDatabaseBuilder()
-					.generateUniqueName(true)
-					.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")
-					.build();
-			// @formatter:on
-		}
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
-		@Bean
-		public DataSource additionalDataSource() {
-			return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
-		}
+    @Test
+    @Sql("data.sql")
+    public void dataSourceTest() {
+        assertThatTransaction().isNotActive();
+        assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(1);
+    }
 
-	}
+    @Configuration
+    static class Config {
 
+        @Primary
+        @Bean
+        public DataSource primaryDataSource() {
+            // @formatter:off
+            return new EmbeddedDatabaseBuilder()
+                    .generateUniqueName(true)
+                    .addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")
+                    .build();
+            // @formatter:on
+        }
 
-	private JdbcTemplate jdbcTemplate;
+        @Bean
+        public DataSource additionalDataSource() {
+            return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
+        }
 
-
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-
-	@Test
-	@Sql("data.sql")
-	public void dataSourceTest() {
-		assertThatTransaction().isNotActive();
-		assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(1);
-	}
+    }
 
 }

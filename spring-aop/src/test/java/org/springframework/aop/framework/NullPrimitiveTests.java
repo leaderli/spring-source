@@ -19,7 +19,6 @@ package org.springframework.aop.framework;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
-
 import org.springframework.aop.AopInvocationException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -32,59 +31,59 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class NullPrimitiveTests {
 
-	static interface Foo {
-		int getValue();
-	}
+    @Test
+    public void testNullPrimitiveWithJdkProxy() {
 
-	@Test
-	public void testNullPrimitiveWithJdkProxy() {
+        class SimpleFoo implements Foo {
+            @Override
+            public int getValue() {
+                return 100;
+            }
+        }
 
-		class SimpleFoo implements Foo {
-			@Override
-			public int getValue() {
-				return 100;
-			}
-		}
+        SimpleFoo target = new SimpleFoo();
+        ProxyFactory factory = new ProxyFactory(target);
+        factory.addAdvice(new MethodInterceptor() {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+                return null;
+            }
+        });
 
-		SimpleFoo target = new SimpleFoo();
-		ProxyFactory factory = new ProxyFactory(target);
-		factory.addAdvice(new MethodInterceptor() {
-			@Override
-			public Object invoke(MethodInvocation invocation) throws Throwable {
-				return null;
-			}
-		});
+        Foo foo = (Foo) factory.getProxy();
 
-		Foo foo = (Foo) factory.getProxy();
+        assertThatExceptionOfType(AopInvocationException.class).isThrownBy(() ->
+                foo.getValue())
+                .withMessageContaining("Foo.getValue()");
+    }
 
-		assertThatExceptionOfType(AopInvocationException.class).isThrownBy(() ->
-				foo.getValue())
-			.withMessageContaining("Foo.getValue()");
-	}
+    @Test
+    public void testNullPrimitiveWithCglibProxy() {
 
-	public static class Bar {
-		public int getValue() {
-			return 100;
-		}
-	}
+        Bar target = new Bar();
+        ProxyFactory factory = new ProxyFactory(target);
+        factory.addAdvice(new MethodInterceptor() {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+                return null;
+            }
+        });
 
-	@Test
-	public void testNullPrimitiveWithCglibProxy() {
+        Bar bar = (Bar) factory.getProxy();
 
-		Bar target = new Bar();
-		ProxyFactory factory = new ProxyFactory(target);
-		factory.addAdvice(new MethodInterceptor() {
-			@Override
-			public Object invoke(MethodInvocation invocation) throws Throwable {
-				return null;
-			}
-		});
+        assertThatExceptionOfType(AopInvocationException.class).isThrownBy(() ->
+                bar.getValue())
+                .withMessageContaining("Bar.getValue()");
+    }
 
-		Bar bar = (Bar) factory.getProxy();
+    static interface Foo {
+        int getValue();
+    }
 
-		assertThatExceptionOfType(AopInvocationException.class).isThrownBy(() ->
-				bar.getValue())
-			.withMessageContaining("Bar.getValue()");
-	}
+    public static class Bar {
+        public int getValue() {
+            return 100;
+        }
+    }
 
 }

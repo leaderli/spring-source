@@ -16,10 +16,6 @@
 
 package org.springframework.web.reactive.result.method.annotation;
 
-import java.util.List;
-
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.HttpEntity;
@@ -29,6 +25,9 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 /**
  * Resolves method arguments of type {@link HttpEntity} or {@link RequestEntity}
@@ -40,31 +39,31 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class HttpEntityMethodArgumentResolver extends AbstractMessageReaderArgumentResolver {
 
-	public HttpEntityMethodArgumentResolver(List<HttpMessageReader<?>> readers, ReactiveAdapterRegistry registry) {
-		super(readers, registry);
-	}
+    public HttpEntityMethodArgumentResolver(List<HttpMessageReader<?>> readers, ReactiveAdapterRegistry registry) {
+        super(readers, registry);
+    }
 
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return checkParameterTypeNoReactiveWrapper(parameter,
-				type -> HttpEntity.class.equals(type) || RequestEntity.class.equals(type));
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return checkParameterTypeNoReactiveWrapper(parameter,
+                type -> HttpEntity.class.equals(type) || RequestEntity.class.equals(type));
+    }
 
-	@Override
-	public Mono<Object> resolveArgument(
-			MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
+    @Override
+    public Mono<Object> resolveArgument(
+            MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
 
-		Class<?> entityType = parameter.getParameterType();
-		return readBody(parameter.nested(), parameter, false, bindingContext, exchange)
-				.map(body -> createEntity(body, entityType, exchange.getRequest()))
-				.defaultIfEmpty(createEntity(null, entityType, exchange.getRequest()));
-	}
+        Class<?> entityType = parameter.getParameterType();
+        return readBody(parameter.nested(), parameter, false, bindingContext, exchange)
+                .map(body -> createEntity(body, entityType, exchange.getRequest()))
+                .defaultIfEmpty(createEntity(null, entityType, exchange.getRequest()));
+    }
 
-	private Object createEntity(@Nullable Object body, Class<?> entityType, ServerHttpRequest request) {
-		return (RequestEntity.class.equals(entityType) ?
-				new RequestEntity<>(body, request.getHeaders(), request.getMethod(), request.getURI()) :
-				new HttpEntity<>(body, request.getHeaders()));
-	}
+    private Object createEntity(@Nullable Object body, Class<?> entityType, ServerHttpRequest request) {
+        return (RequestEntity.class.equals(entityType) ?
+                new RequestEntity<>(body, request.getHeaders(), request.getMethod(), request.getURI()) :
+                new HttpEntity<>(body, request.getHeaders()));
+    }
 
 }

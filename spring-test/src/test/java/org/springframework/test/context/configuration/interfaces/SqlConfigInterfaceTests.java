@@ -17,7 +17,6 @@
 package org.springframework.test.context.configuration.interfaces;
 
 import org.junit.Test;
-
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -29,18 +28,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.3
  */
 public class SqlConfigInterfaceTests extends AbstractTransactionalJUnit4SpringContextTests
-		implements SqlConfigTestInterface {
+        implements SqlConfigTestInterface {
 
-	@Test
-	@Sql(scripts = "/org/springframework/test/context/jdbc/schema.sql", //
-			config = @SqlConfig(separator = ";"))
-	@Sql("/org/springframework/test/context/jdbc/data-add-users-with-custom-script-syntax.sql")
-	public void methodLevelScripts() {
-		assertNumUsers(3);
-	}
+    @Test
+    @Sql(scripts = "/org/springframework/test/context/jdbc/schema.sql", //
+            config = @SqlConfig(separator = ";"))
+    @Sql("/org/springframework/test/context/jdbc/data-add-users-with-custom-script-syntax.sql")
+    public void methodLevelScripts() {
+        assertNumUsers(3);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+    protected void assertNumUsers(int expected) {
+        assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+    }
 
 }

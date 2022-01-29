@@ -16,8 +16,6 @@
 
 package org.springframework.cache.aspectj;
 
-import java.util.Arrays;
-
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -31,41 +29,43 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
+
 /**
  * @author Stephane Nicoll
  */
 public class JCacheAspectJJavaConfigTests extends AbstractJCacheAnnotationTests {
 
-	@Override
-	protected ApplicationContext getApplicationContext() {
-		return new AnnotationConfigApplicationContext(EnableCachingConfig.class);
-	}
+    @Override
+    protected ApplicationContext getApplicationContext() {
+        return new AnnotationConfigApplicationContext(EnableCachingConfig.class);
+    }
 
 
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	public static class EnableCachingConfig {
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    public static class EnableCachingConfig {
 
-		@Bean
-		public CacheManager cacheManager() {
-			SimpleCacheManager cm = new SimpleCacheManager();
-			cm.setCaches(Arrays.asList(
-					defaultCache(),
-					new ConcurrentMapCache("primary"),
-					new ConcurrentMapCache("secondary"),
-					new ConcurrentMapCache("exception")));
-			return cm;
-		}
+        @Bean
+        public CacheManager cacheManager() {
+            SimpleCacheManager cm = new SimpleCacheManager();
+            cm.setCaches(Arrays.asList(
+                    defaultCache(),
+                    new ConcurrentMapCache("primary"),
+                    new ConcurrentMapCache("secondary"),
+                    new ConcurrentMapCache("exception")));
+            return cm;
+        }
 
-		@Bean
-		public AnnotatedJCacheableService cacheableService() {
-			return new AnnotatedJCacheableService(defaultCache());
-		}
+        @Bean
+        public AnnotatedJCacheableService cacheableService() {
+            return new AnnotatedJCacheableService(defaultCache());
+        }
 
-		@Bean
-		public Cache defaultCache() {
-			return new ConcurrentMapCache("default");
-		}
-	}
+        @Bean
+        public Cache defaultCache() {
+            return new ConcurrentMapCache("default");
+        }
+    }
 
 }

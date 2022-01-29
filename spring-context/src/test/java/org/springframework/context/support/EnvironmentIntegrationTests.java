@@ -17,7 +17,6 @@
 package org.springframework.context.support;
 
 import org.junit.Test;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -36,20 +35,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class EnvironmentIntegrationTests {
 
-	@Test
-	public void repro() {
-		ConfigurableApplicationContext parent = new GenericApplicationContext();
-		parent.refresh();
+    @Test
+    public void repro() {
+        ConfigurableApplicationContext parent = new GenericApplicationContext();
+        parent.refresh();
 
-		AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
-		child.setParent(parent);
-		child.refresh();
+        AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
+        child.setParent(parent);
+        child.refresh();
 
-		ConfigurableEnvironment env = child.getBean(ConfigurableEnvironment.class);
-		assertThat(env).isSameAs(child.getEnvironment());
+        ConfigurableEnvironment env = child.getBean(ConfigurableEnvironment.class);
+        assertThat(env).isSameAs(child.getEnvironment());
 
-		child.close();
-		parent.close();
-	}
+        child.close();
+        parent.close();
+    }
 
 }

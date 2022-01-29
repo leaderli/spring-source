@@ -16,18 +16,17 @@
 
 package org.springframework.jmx;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
 import org.junit.After;
 import org.junit.Before;
-
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.util.MBeanTestUtils;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,64 +51,63 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class AbstractMBeanServerTests {
 
-	protected MBeanServer server;
+    protected MBeanServer server;
 
 
-	@Before
-	public final void setUp() throws Exception {
-		this.server = MBeanServerFactory.createMBeanServer();
-		try {
-			onSetUp();
-		}
-		catch (Exception ex) {
-			releaseServer();
-			throw ex;
-		}
-	}
+    @Before
+    public final void setUp() throws Exception {
+        this.server = MBeanServerFactory.createMBeanServer();
+        try {
+            onSetUp();
+        } catch (Exception ex) {
+            releaseServer();
+            throw ex;
+        }
+    }
 
-	protected ConfigurableApplicationContext loadContext(String configLocation) {
-		GenericApplicationContext ctx = new GenericApplicationContext();
-		new XmlBeanDefinitionReader(ctx).loadBeanDefinitions(configLocation);
-		ctx.getDefaultListableBeanFactory().registerSingleton("server", this.server);
-		ctx.refresh();
-		return ctx;
-	}
+    protected ConfigurableApplicationContext loadContext(String configLocation) {
+        GenericApplicationContext ctx = new GenericApplicationContext();
+        new XmlBeanDefinitionReader(ctx).loadBeanDefinitions(configLocation);
+        ctx.getDefaultListableBeanFactory().registerSingleton("server", this.server);
+        ctx.refresh();
+        return ctx;
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		releaseServer();
-		onTearDown();
-	}
+    @After
+    public void tearDown() throws Exception {
+        releaseServer();
+        onTearDown();
+    }
 
-	private void releaseServer() throws Exception {
-		MBeanServerFactory.releaseMBeanServer(getServer());
-		MBeanTestUtils.resetMBeanServers();
-	}
+    private void releaseServer() throws Exception {
+        MBeanServerFactory.releaseMBeanServer(getServer());
+        MBeanTestUtils.resetMBeanServers();
+    }
 
-	protected void onTearDown() throws Exception {
-	}
+    protected void onTearDown() throws Exception {
+    }
 
-	protected void onSetUp() throws Exception {
-	}
+    protected void onSetUp() throws Exception {
+    }
 
-	public MBeanServer getServer() {
-		return this.server;
-	}
+    public MBeanServer getServer() {
+        return this.server;
+    }
 
-	/**
-	 * Start the specified {@link MBeanExporter}.
-	 */
-	protected void start(MBeanExporter exporter) {
-		exporter.afterPropertiesSet();
-		exporter.afterSingletonsInstantiated();
-	}
+    /**
+     * Start the specified {@link MBeanExporter}.
+     */
+    protected void start(MBeanExporter exporter) {
+        exporter.afterPropertiesSet();
+        exporter.afterSingletonsInstantiated();
+    }
 
-	protected void assertIsRegistered(String message, ObjectName objectName) {
-		assertThat(getServer().isRegistered(objectName)).as(message).isTrue();
-	}
+    protected void assertIsRegistered(String message, ObjectName objectName) {
+        assertThat(getServer().isRegistered(objectName)).as(message).isTrue();
+    }
 
-	protected void assertIsNotRegistered(String message, ObjectName objectName) {
-		assertThat(getServer().isRegistered(objectName)).as(message).isFalse();
-	}
+    protected void assertIsNotRegistered(String message, ObjectName objectName) {
+        assertThat(getServer().isRegistered(objectName)).as(message).isFalse();
+    }
 
 }

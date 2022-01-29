@@ -16,16 +16,15 @@
 
 package org.springframework.web.socket.server.support;
 
+import org.junit.Test;
+import org.springframework.mock.web.test.MockHttpSession;
+import org.springframework.web.socket.AbstractHttpRequestTests;
+import org.springframework.web.socket.WebSocketHandler;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.Test;
-
-import org.springframework.mock.web.test.MockHttpSession;
-import org.springframework.web.socket.AbstractHttpRequestTests;
-import org.springframework.web.socket.WebSocketHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,73 +36,73 @@ import static org.mockito.Mockito.mock;
  */
 public class HttpSessionHandshakeInterceptorTests extends AbstractHttpRequestTests {
 
-	private final Map<String, Object> attributes = new HashMap<>();
-	private final WebSocketHandler wsHandler = mock(WebSocketHandler.class);
+    private final Map<String, Object> attributes = new HashMap<>();
+    private final WebSocketHandler wsHandler = mock(WebSocketHandler.class);
 
 
-	@Test
-	public void defaultConstructor() throws Exception {
-		this.servletRequest.setSession(new MockHttpSession(null, "123"));
-		this.servletRequest.getSession().setAttribute("foo", "bar");
-		this.servletRequest.getSession().setAttribute("bar", "baz");
+    @Test
+    public void defaultConstructor() throws Exception {
+        this.servletRequest.setSession(new MockHttpSession(null, "123"));
+        this.servletRequest.getSession().setAttribute("foo", "bar");
+        this.servletRequest.getSession().setAttribute("bar", "baz");
 
-		HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
-		interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
+        HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
+        interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
 
-		assertThat(attributes.size()).isEqualTo(3);
-		assertThat(attributes.get("foo")).isEqualTo("bar");
-		assertThat(attributes.get("bar")).isEqualTo("baz");
-		assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
-	}
+        assertThat(attributes.size()).isEqualTo(3);
+        assertThat(attributes.get("foo")).isEqualTo("bar");
+        assertThat(attributes.get("bar")).isEqualTo("baz");
+        assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
+    }
 
-	@Test
-	public void constructorWithAttributeNames() throws Exception {
-		this.servletRequest.setSession(new MockHttpSession(null, "123"));
-		this.servletRequest.getSession().setAttribute("foo", "bar");
-		this.servletRequest.getSession().setAttribute("bar", "baz");
+    @Test
+    public void constructorWithAttributeNames() throws Exception {
+        this.servletRequest.setSession(new MockHttpSession(null, "123"));
+        this.servletRequest.getSession().setAttribute("foo", "bar");
+        this.servletRequest.getSession().setAttribute("bar", "baz");
 
-		Set<String> names = Collections.singleton("foo");
-		HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor(names);
-		interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
+        Set<String> names = Collections.singleton("foo");
+        HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor(names);
+        interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
 
-		assertThat(attributes.size()).isEqualTo(2);
-		assertThat(attributes.get("foo")).isEqualTo("bar");
-		assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
-	}
+        assertThat(attributes.size()).isEqualTo(2);
+        assertThat(attributes.get("foo")).isEqualTo("bar");
+        assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
+    }
 
-	@Test
-	public void doNotCopyHttpSessionId() throws Exception {
-		this.servletRequest.setSession(new MockHttpSession(null, "123"));
-		this.servletRequest.getSession().setAttribute("foo", "bar");
+    @Test
+    public void doNotCopyHttpSessionId() throws Exception {
+        this.servletRequest.setSession(new MockHttpSession(null, "123"));
+        this.servletRequest.getSession().setAttribute("foo", "bar");
 
-		HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
-		interceptor.setCopyHttpSessionId(false);
-		interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
+        HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
+        interceptor.setCopyHttpSessionId(false);
+        interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
 
-		assertThat(attributes.size()).isEqualTo(1);
-		assertThat(attributes.get("foo")).isEqualTo("bar");
-	}
+        assertThat(attributes.size()).isEqualTo(1);
+        assertThat(attributes.get("foo")).isEqualTo("bar");
+    }
 
 
-	@Test
-	public void doNotCopyAttributes() throws Exception {
-		this.servletRequest.setSession(new MockHttpSession(null, "123"));
-		this.servletRequest.getSession().setAttribute("foo", "bar");
+    @Test
+    public void doNotCopyAttributes() throws Exception {
+        this.servletRequest.setSession(new MockHttpSession(null, "123"));
+        this.servletRequest.getSession().setAttribute("foo", "bar");
 
-		HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
-		interceptor.setCopyAllAttributes(false);
-		interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
+        HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
+        interceptor.setCopyAllAttributes(false);
+        interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
 
-		assertThat(attributes.size()).isEqualTo(1);
-		assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
-	}
+        assertThat(attributes.size()).isEqualTo(1);
+        assertThat(attributes.get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)).isEqualTo("123");
+    }
 
-	@Test
-	public void doNotCauseSessionCreation() throws Exception {
-		HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
-		interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
+    @Test
+    public void doNotCauseSessionCreation() throws Exception {
+        HttpSessionHandshakeInterceptor interceptor = new HttpSessionHandshakeInterceptor();
+        interceptor.beforeHandshake(this.request, this.response, wsHandler, attributes);
 
-		assertThat(this.servletRequest.getSession(false)).isNull();
-	}
+        assertThat(this.servletRequest.getSession(false)).isNull();
+    }
 
 }

@@ -16,9 +16,8 @@
 
 package org.springframework.ejb.config;
 
-import org.w3c.dom.Element;
-
 import org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean;
+import org.w3c.dom.Element;
 
 /**
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser}
@@ -31,9 +30,9 @@ import org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBe
  */
 class RemoteStatelessSessionBeanDefinitionParser extends AbstractJndiLocatingBeanDefinitionParser {
 
-	@Override
-	protected String getBeanClassName(Element element) {
-		return "org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean";
-	}
+    @Override
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean";
+    }
 
 }

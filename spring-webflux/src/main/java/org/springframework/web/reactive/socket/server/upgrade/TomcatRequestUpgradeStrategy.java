@@ -16,18 +16,7 @@
 
 package org.springframework.web.reactive.socket.server.upgrade;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.function.Supplier;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.websocket.Endpoint;
-import javax.websocket.server.ServerContainer;
-
 import org.apache.tomcat.websocket.server.WsServerContainer;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.server.reactive.AbstractServerHttpRequest;
 import org.springframework.http.server.reactive.AbstractServerHttpResponse;
@@ -41,6 +30,16 @@ import org.springframework.web.reactive.socket.adapter.StandardWebSocketHandlerA
 import org.springframework.web.reactive.socket.adapter.TomcatWebSocketSession;
 import org.springframework.web.reactive.socket.server.RequestUpgradeStrategy;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.websocket.Endpoint;
+import javax.websocket.server.ServerContainer;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.function.Supplier;
 
 /**
  * A {@link RequestUpgradeStrategy} for use with Tomcat.
@@ -51,144 +50,141 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class TomcatRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
-	private static final String SERVER_CONTAINER_ATTR = "javax.websocket.server.ServerContainer";
+    private static final String SERVER_CONTAINER_ATTR = "javax.websocket.server.ServerContainer";
 
 
-	@Nullable
-	private Long asyncSendTimeout;
+    @Nullable
+    private Long asyncSendTimeout;
 
-	@Nullable
-	private Long maxSessionIdleTimeout;
+    @Nullable
+    private Long maxSessionIdleTimeout;
 
-	@Nullable
-	private Integer maxTextMessageBufferSize;
+    @Nullable
+    private Integer maxTextMessageBufferSize;
 
-	@Nullable
-	private Integer maxBinaryMessageBufferSize;
+    @Nullable
+    private Integer maxBinaryMessageBufferSize;
 
-	@Nullable
-	private WsServerContainer serverContainer;
+    @Nullable
+    private WsServerContainer serverContainer;
 
+    @Nullable
+    public Long getAsyncSendTimeout() {
+        return this.asyncSendTimeout;
+    }
 
-	/**
-	 * Exposes the underlying config option on
-	 * {@link javax.websocket.server.ServerContainer#setAsyncSendTimeout(long)}.
-	 */
-	public void setAsyncSendTimeout(Long timeoutInMillis) {
-		this.asyncSendTimeout = timeoutInMillis;
-	}
+    /**
+     * Exposes the underlying config option on
+     * {@link javax.websocket.server.ServerContainer#setAsyncSendTimeout(long)}.
+     */
+    public void setAsyncSendTimeout(Long timeoutInMillis) {
+        this.asyncSendTimeout = timeoutInMillis;
+    }
 
-	@Nullable
-	public Long getAsyncSendTimeout() {
-		return this.asyncSendTimeout;
-	}
+    @Nullable
+    public Long getMaxSessionIdleTimeout() {
+        return this.maxSessionIdleTimeout;
+    }
 
-	/**
-	 * Exposes the underlying config option on
-	 * {@link javax.websocket.server.ServerContainer#setDefaultMaxSessionIdleTimeout(long)}.
-	 */
-	public void setMaxSessionIdleTimeout(Long timeoutInMillis) {
-		this.maxSessionIdleTimeout = timeoutInMillis;
-	}
+    /**
+     * Exposes the underlying config option on
+     * {@link javax.websocket.server.ServerContainer#setDefaultMaxSessionIdleTimeout(long)}.
+     */
+    public void setMaxSessionIdleTimeout(Long timeoutInMillis) {
+        this.maxSessionIdleTimeout = timeoutInMillis;
+    }
 
-	@Nullable
-	public Long getMaxSessionIdleTimeout() {
-		return this.maxSessionIdleTimeout;
-	}
+    @Nullable
+    public Integer getMaxTextMessageBufferSize() {
+        return this.maxTextMessageBufferSize;
+    }
 
-	/**
-	 * Exposes the underlying config option on
-	 * {@link javax.websocket.server.ServerContainer#setDefaultMaxTextMessageBufferSize(int)}.
-	 */
-	public void setMaxTextMessageBufferSize(Integer bufferSize) {
-		this.maxTextMessageBufferSize = bufferSize;
-	}
+    /**
+     * Exposes the underlying config option on
+     * {@link javax.websocket.server.ServerContainer#setDefaultMaxTextMessageBufferSize(int)}.
+     */
+    public void setMaxTextMessageBufferSize(Integer bufferSize) {
+        this.maxTextMessageBufferSize = bufferSize;
+    }
 
-	@Nullable
-	public Integer getMaxTextMessageBufferSize() {
-		return this.maxTextMessageBufferSize;
-	}
+    @Nullable
+    public Integer getMaxBinaryMessageBufferSize() {
+        return this.maxBinaryMessageBufferSize;
+    }
 
-	/**
-	 * Exposes the underlying config option on
-	 * {@link javax.websocket.server.ServerContainer#setDefaultMaxBinaryMessageBufferSize(int)}.
-	 */
-	public void setMaxBinaryMessageBufferSize(Integer bufferSize) {
-		this.maxBinaryMessageBufferSize = bufferSize;
-	}
+    /**
+     * Exposes the underlying config option on
+     * {@link javax.websocket.server.ServerContainer#setDefaultMaxBinaryMessageBufferSize(int)}.
+     */
+    public void setMaxBinaryMessageBufferSize(Integer bufferSize) {
+        this.maxBinaryMessageBufferSize = bufferSize;
+    }
 
-	@Nullable
-	public Integer getMaxBinaryMessageBufferSize() {
-		return this.maxBinaryMessageBufferSize;
-	}
+    @Override
+    public Mono<Void> upgrade(ServerWebExchange exchange, WebSocketHandler handler,
+                              @Nullable String subProtocol, Supplier<HandshakeInfo> handshakeInfoFactory) {
 
+        ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
 
-	@Override
-	public Mono<Void> upgrade(ServerWebExchange exchange, WebSocketHandler handler,
-			@Nullable String subProtocol, Supplier<HandshakeInfo> handshakeInfoFactory){
+        HttpServletRequest servletRequest = getHttpServletRequest(request);
+        HttpServletResponse servletResponse = getHttpServletResponse(response);
 
-		ServerHttpRequest request = exchange.getRequest();
-		ServerHttpResponse response = exchange.getResponse();
+        HandshakeInfo handshakeInfo = handshakeInfoFactory.get();
+        DataBufferFactory bufferFactory = response.bufferFactory();
 
-		HttpServletRequest servletRequest = getHttpServletRequest(request);
-		HttpServletResponse servletResponse = getHttpServletResponse(response);
+        Endpoint endpoint = new StandardWebSocketHandlerAdapter(
+                handler, session -> new TomcatWebSocketSession(session, handshakeInfo, bufferFactory));
 
-		HandshakeInfo handshakeInfo = handshakeInfoFactory.get();
-		DataBufferFactory bufferFactory = response.bufferFactory();
+        String requestURI = servletRequest.getRequestURI();
+        DefaultServerEndpointConfig config = new DefaultServerEndpointConfig(requestURI, endpoint);
+        config.setSubprotocols(subProtocol != null ?
+                Collections.singletonList(subProtocol) : Collections.emptyList());
 
-		Endpoint endpoint = new StandardWebSocketHandlerAdapter(
-				handler, session -> new TomcatWebSocketSession(session, handshakeInfo, bufferFactory));
+        try {
+            WsServerContainer container = getContainer(servletRequest);
+            container.doUpgrade(servletRequest, servletResponse, config, Collections.emptyMap());
+        } catch (ServletException | IOException ex) {
+            return Mono.error(ex);
+        }
 
-		String requestURI = servletRequest.getRequestURI();
-		DefaultServerEndpointConfig config = new DefaultServerEndpointConfig(requestURI, endpoint);
-		config.setSubprotocols(subProtocol != null ?
-				Collections.singletonList(subProtocol) : Collections.emptyList());
+        return Mono.empty();
+    }
 
-		try {
-			WsServerContainer container = getContainer(servletRequest);
-			container.doUpgrade(servletRequest, servletResponse, config, Collections.emptyMap());
-		}
-		catch (ServletException | IOException ex) {
-			return Mono.error(ex);
-		}
+    private HttpServletRequest getHttpServletRequest(ServerHttpRequest request) {
+        Assert.isInstanceOf(AbstractServerHttpRequest.class, request, "ServletServerHttpRequest required");
+        return ((AbstractServerHttpRequest) request).getNativeRequest();
+    }
 
-		return Mono.empty();
-	}
+    private HttpServletResponse getHttpServletResponse(ServerHttpResponse response) {
+        Assert.isInstanceOf(AbstractServerHttpResponse.class, response, "ServletServerHttpResponse required");
+        return ((AbstractServerHttpResponse) response).getNativeResponse();
+    }
 
-	private HttpServletRequest getHttpServletRequest(ServerHttpRequest request) {
-		Assert.isInstanceOf(AbstractServerHttpRequest.class, request, "ServletServerHttpRequest required");
-		return ((AbstractServerHttpRequest) request).getNativeRequest();
-	}
+    private WsServerContainer getContainer(HttpServletRequest request) {
+        if (this.serverContainer == null) {
+            Object container = request.getServletContext().getAttribute(SERVER_CONTAINER_ATTR);
+            Assert.state(container instanceof WsServerContainer,
+                    "ServletContext attribute 'javax.websocket.server.ServerContainer' not found.");
+            this.serverContainer = (WsServerContainer) container;
+            initServerContainer(this.serverContainer);
+        }
+        return this.serverContainer;
+    }
 
-	private HttpServletResponse getHttpServletResponse(ServerHttpResponse response) {
-		Assert.isInstanceOf(AbstractServerHttpResponse.class, response, "ServletServerHttpResponse required");
-		return ((AbstractServerHttpResponse) response).getNativeResponse();
-	}
-
-	private WsServerContainer getContainer(HttpServletRequest request) {
-		if (this.serverContainer == null) {
-			Object container = request.getServletContext().getAttribute(SERVER_CONTAINER_ATTR);
-			Assert.state(container instanceof WsServerContainer,
-					"ServletContext attribute 'javax.websocket.server.ServerContainer' not found.");
-			this.serverContainer = (WsServerContainer) container;
-			initServerContainer(this.serverContainer);
-		}
-		return this.serverContainer;
-	}
-
-	private void initServerContainer(ServerContainer serverContainer) {
-		if (this.asyncSendTimeout != null) {
-			serverContainer.setAsyncSendTimeout(this.asyncSendTimeout);
-		}
-		if (this.maxSessionIdleTimeout != null) {
-			serverContainer.setDefaultMaxSessionIdleTimeout(this.maxSessionIdleTimeout);
-		}
-		if (this.maxTextMessageBufferSize != null) {
-			serverContainer.setDefaultMaxTextMessageBufferSize(this.maxTextMessageBufferSize);
-		}
-		if (this.maxBinaryMessageBufferSize != null) {
-			serverContainer.setDefaultMaxBinaryMessageBufferSize(this.maxBinaryMessageBufferSize);
-		}
-	}
+    private void initServerContainer(ServerContainer serverContainer) {
+        if (this.asyncSendTimeout != null) {
+            serverContainer.setAsyncSendTimeout(this.asyncSendTimeout);
+        }
+        if (this.maxSessionIdleTimeout != null) {
+            serverContainer.setDefaultMaxSessionIdleTimeout(this.maxSessionIdleTimeout);
+        }
+        if (this.maxTextMessageBufferSize != null) {
+            serverContainer.setDefaultMaxTextMessageBufferSize(this.maxTextMessageBufferSize);
+        }
+        if (this.maxBinaryMessageBufferSize != null) {
+            serverContainer.setDefaultMaxBinaryMessageBufferSize(this.maxBinaryMessageBufferSize);
+        }
+    }
 
 }

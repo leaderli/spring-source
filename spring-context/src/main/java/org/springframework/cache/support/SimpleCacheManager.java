@@ -16,10 +16,10 @@
 
 package org.springframework.cache.support;
 
+import org.springframework.cache.Cache;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import org.springframework.cache.Cache;
 
 /**
  * Simple cache manager working against a given collection of caches.
@@ -30,19 +30,19 @@ import org.springframework.cache.Cache;
  */
 public class SimpleCacheManager extends AbstractCacheManager {
 
-	private Collection<? extends Cache> caches = Collections.emptySet();
+    private Collection<? extends Cache> caches = Collections.emptySet();
 
 
-	/**
-	 * Specify the collection of Cache instances to use for this CacheManager.
-	 */
-	public void setCaches(Collection<? extends Cache> caches) {
-		this.caches = caches;
-	}
+    /**
+     * Specify the collection of Cache instances to use for this CacheManager.
+     */
+    public void setCaches(Collection<? extends Cache> caches) {
+        this.caches = caches;
+    }
 
-	@Override
-	protected Collection<? extends Cache> loadCaches() {
-		return this.caches;
-	}
+    @Override
+    protected Collection<? extends Cache> loadCaches() {
+        return this.caches;
+    }
 
 }

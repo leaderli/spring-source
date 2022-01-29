@@ -16,44 +16,44 @@
 
 package org.springframework.scripting.groovy;
 
-import java.lang.reflect.Method;
-
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.ThrowsAdvice;
 import org.springframework.lang.Nullable;
 
+import java.lang.reflect.Method;
+
 public class LogUserAdvice implements MethodBeforeAdvice, ThrowsAdvice {
 
-	private int countBefore = 0;
+    private int countBefore = 0;
 
-	private int countThrows = 0;
+    private int countThrows = 0;
 
-	@Override
-	public void before(Method method, Object[] objects, @Nullable Object o) throws Throwable {
-		countBefore++;
-		// System.out.println("Method:" + method.getName());
-	}
+    @Override
+    public void before(Method method, Object[] objects, @Nullable Object o) throws Throwable {
+        countBefore++;
+        // System.out.println("Method:" + method.getName());
+    }
 
-	public void afterThrowing(Exception e) throws Throwable {
-		countThrows++;
-		// System.out.println("***********************************************************************************");
-		// System.out.println("Exception caught:");
-		// System.out.println("***********************************************************************************");
-		// e.printStackTrace();
-		throw e;
-	}
+    public void afterThrowing(Exception e) throws Throwable {
+        countThrows++;
+        // System.out.println("***********************************************************************************");
+        // System.out.println("Exception caught:");
+        // System.out.println("***********************************************************************************");
+        // e.printStackTrace();
+        throw e;
+    }
 
-	public int getCountBefore() {
-		return countBefore;
-	}
+    public int getCountBefore() {
+        return countBefore;
+    }
 
-	public int getCountThrows() {
-		return countThrows;
-	}
+    public int getCountThrows() {
+        return countThrows;
+    }
 
-	public void reset() {
-		countThrows = 0;
-		countBefore = 0;
-	}
+    public void reset() {
+        countThrows = 0;
+        countBefore = 0;
+    }
 
 }

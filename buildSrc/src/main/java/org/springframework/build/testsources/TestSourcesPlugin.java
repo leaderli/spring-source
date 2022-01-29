@@ -16,11 +16,6 @@
 
 package org.springframework.build.testsources;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -29,8 +24,12 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
-
 import org.springframework.build.optional.OptionalDependenciesPlugin;
+
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@link Plugin} that automatically updates testCompile dependencies to include
@@ -44,51 +43,51 @@ import org.springframework.build.optional.OptionalDependenciesPlugin;
  */
 public class TestSourcesPlugin implements Plugin<Project> {
 
-	/**
-	 * List of configurations this plugin should look for project dependencies in.
-	 */
-	private static final List<String> CONFIGURATIONS = Arrays.asList(
-			JavaPlugin.COMPILE_CONFIGURATION_NAME,
-			JavaPlugin.API_CONFIGURATION_NAME,
-			JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
-			OptionalDependenciesPlugin.OPTIONAL_CONFIGURATION_NAME,
-			JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME);
+    /**
+     * List of configurations this plugin should look for project dependencies in.
+     */
+    private static final List<String> CONFIGURATIONS = Arrays.asList(
+            JavaPlugin.COMPILE_CONFIGURATION_NAME,
+            JavaPlugin.API_CONFIGURATION_NAME,
+            JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
+            OptionalDependenciesPlugin.OPTIONAL_CONFIGURATION_NAME,
+            JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME);
 
-	@Override
-	public void apply(Project project) {
-		project.getPlugins().withType(JavaPlugin.class, (plugin) -> addTestSourcesToProject(project));
-	}
+    @Override
+    public void apply(Project project) {
+        project.getPlugins().withType(JavaPlugin.class, (plugin) -> addTestSourcesToProject(project));
+    }
 
-	private void addTestSourcesToProject(Project project) {
-		project.afterEvaluate(currentProject -> {
-			Set<ProjectDependency> projectDependencies = new LinkedHashSet<>();
-			collectProjectDependencies(projectDependencies, project);
-			projectDependencies.forEach(dep -> addTestSourcesFromDependency(currentProject, dep));
-		});
-	}
+    private void addTestSourcesToProject(Project project) {
+        project.afterEvaluate(currentProject -> {
+            Set<ProjectDependency> projectDependencies = new LinkedHashSet<>();
+            collectProjectDependencies(projectDependencies, project);
+            projectDependencies.forEach(dep -> addTestSourcesFromDependency(currentProject, dep));
+        });
+    }
 
-	private void collectProjectDependencies(Set<ProjectDependency> projectDependencies, Project project) {
-		for (String configurationName : CONFIGURATIONS) {
-			Configuration configuration = project.getConfigurations().findByName(configurationName);
-			if (configuration != null) {
-				configuration.getDependencies().forEach(dependency -> {
-					if (dependency instanceof ProjectDependency) {
-						ProjectDependency projectDependency = (ProjectDependency) dependency;
-						projectDependencies.add(projectDependency);
-						collectProjectDependencies(projectDependencies, projectDependency.getDependencyProject());
-					}
-				});
-			}
-		}
-	}
+    private void collectProjectDependencies(Set<ProjectDependency> projectDependencies, Project project) {
+        for (String configurationName : CONFIGURATIONS) {
+            Configuration configuration = project.getConfigurations().findByName(configurationName);
+            if (configuration != null) {
+                configuration.getDependencies().forEach(dependency -> {
+                    if (dependency instanceof ProjectDependency) {
+                        ProjectDependency projectDependency = (ProjectDependency) dependency;
+                        projectDependencies.add(projectDependency);
+                        collectProjectDependencies(projectDependencies, projectDependency.getDependencyProject());
+                    }
+                });
+            }
+        }
+    }
 
-	private void addTestSourcesFromDependency(final Project currentProject, ProjectDependency dependency) {
-		Project dependencyProject = dependency.getDependencyProject();
-		dependencyProject.getPlugins().withType(JavaPlugin.class, plugin -> {
-			final JavaPluginConvention javaPlugin = dependencyProject.getConvention()
-					.getPlugin(JavaPluginConvention.class);
-			SourceSetOutput test = javaPlugin.getSourceSets().findByName(SourceSet.TEST_SOURCE_SET_NAME).getOutput();
-			currentProject.getDependencies().add(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME, test);
-		});
-	}
+    private void addTestSourcesFromDependency(final Project currentProject, ProjectDependency dependency) {
+        Project dependencyProject = dependency.getDependencyProject();
+        dependencyProject.getPlugins().withType(JavaPlugin.class, plugin -> {
+            final JavaPluginConvention javaPlugin = dependencyProject.getConvention()
+                    .getPlugin(JavaPluginConvention.class);
+            SourceSetOutput test = javaPlugin.getSourceSets().findByName(SourceSet.TEST_SOURCE_SET_NAME).getOutput();
+            currentProject.getDependencies().add(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME, test);
+        });
+    }
 }

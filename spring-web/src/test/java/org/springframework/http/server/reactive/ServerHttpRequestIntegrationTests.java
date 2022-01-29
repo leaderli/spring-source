@@ -16,15 +16,14 @@
 
 package org.springframework.http.server.reactive;
 
-import java.net.URI;
-
 import org.junit.Test;
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
+
+import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,33 +32,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ServerHttpRequestIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-	@Override
-	protected CheckRequestHandler createHttpHandler() {
-		return new CheckRequestHandler();
-	}
+    @Override
+    protected CheckRequestHandler createHttpHandler() {
+        return new CheckRequestHandler();
+    }
 
-	@Test
-	public void checkUri() throws Exception {
-		URI url = new URI("http://localhost:" + port + "/foo?param=bar");
-		RequestEntity<Void> request = RequestEntity.post(url).build();
-		ResponseEntity<Void> response = new RestTemplate().exchange(request, Void.class);
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-	}
+    @Test
+    public void checkUri() throws Exception {
+        URI url = new URI("http://localhost:" + port + "/foo?param=bar");
+        RequestEntity<Void> request = RequestEntity.post(url).build();
+        ResponseEntity<Void> response = new RestTemplate().exchange(request, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 
 
-	public static class CheckRequestHandler implements HttpHandler {
+    public static class CheckRequestHandler implements HttpHandler {
 
-		@Override
-		public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-			URI uri = request.getURI();
-			assertThat(uri.getScheme()).isEqualTo("http");
-			assertThat(uri.getHost()).isNotNull();
-			assertThat(uri.getPort()).isNotEqualTo((long) -1);
-			assertThat(request.getRemoteAddress()).isNotNull();
-			assertThat(uri.getPath()).isEqualTo("/foo");
-			assertThat(uri.getQuery()).isEqualTo("param=bar");
-			return Mono.empty();
-		}
-	}
+        @Override
+        public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+            URI uri = request.getURI();
+            assertThat(uri.getScheme()).isEqualTo("http");
+            assertThat(uri.getHost()).isNotNull();
+            assertThat(uri.getPort()).isNotEqualTo((long) -1);
+            assertThat(request.getRemoteAddress()).isNotNull();
+            assertThat(uri.getPath()).isEqualTo("/foo");
+            assertThat(uri.getQuery()).isEqualTo("param=bar");
+            return Mono.empty();
+        }
+    }
 
 }

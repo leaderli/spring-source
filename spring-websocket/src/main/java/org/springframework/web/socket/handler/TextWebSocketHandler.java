@@ -16,12 +16,12 @@
 
 package org.springframework.web.socket.handler;
 
-import java.io.IOException;
-
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
 
 /**
  * A convenient base class for {@link WebSocketHandler} implementations
@@ -36,14 +36,13 @@ import org.springframework.web.socket.WebSocketSession;
  */
 public class TextWebSocketHandler extends AbstractWebSocketHandler {
 
-	@Override
-	protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-		try {
-			session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
-		}
-		catch (IOException ex) {
-			// ignore
-		}
-	}
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+        try {
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
+        } catch (IOException ex) {
+            // ignore
+        }
+    }
 
 }

@@ -16,11 +16,8 @@
 
 package org.springframework.test.context.web.socket;
 
-import javax.websocket.server.ServerContainer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +25,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
+
+import javax.websocket.server.ServerContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,26 +42,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 public class WebSocketServletServerContainerFactoryBeanTests {
 
-	@Autowired
-	ServerContainer serverContainer;
+    @Autowired
+    ServerContainer serverContainer;
 
 
-	@Test
-	public void servletServerContainerFactoryBeanSupport() {
-		assertThat(serverContainer.getDefaultMaxTextMessageBufferSize()).isEqualTo(42);
-	}
+    @Test
+    public void servletServerContainerFactoryBeanSupport() {
+        assertThat(serverContainer.getDefaultMaxTextMessageBufferSize()).isEqualTo(42);
+    }
 
 
-	@Configuration
-	@EnableWebSocket
-	static class WebSocketConfig {
+    @Configuration
+    @EnableWebSocket
+    static class WebSocketConfig {
 
-		@Bean
-		ServletServerContainerFactoryBean createWebSocketContainer() {
-			ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-			container.setMaxTextMessageBufferSize(42);
-			return container;
-		}
-	}
+        @Bean
+        ServletServerContainerFactoryBean createWebSocketContainer() {
+            ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+            container.setMaxTextMessageBufferSize(42);
+            return container;
+        }
+    }
 
 }

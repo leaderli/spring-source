@@ -16,11 +16,11 @@
 
 package org.springframework.context.index.processor;
 
+import org.assertj.core.api.Condition;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.assertj.core.api.Condition;
 
 /**
  * AssertJ {@link Condition} to help test {@link CandidateComponentsMetadata}.
@@ -29,23 +29,23 @@ import org.assertj.core.api.Condition;
  */
 class Metadata {
 
-	public static Condition<CandidateComponentsMetadata> of(Class<?> type, Class<?>... stereotypes) {
-		return of(type.getName(), Arrays.stream(stereotypes).map(Class::getName).collect(Collectors.toList()));
-	}
+    public static Condition<CandidateComponentsMetadata> of(Class<?> type, Class<?>... stereotypes) {
+        return of(type.getName(), Arrays.stream(stereotypes).map(Class::getName).collect(Collectors.toList()));
+    }
 
-	public static Condition<CandidateComponentsMetadata> of(String type, String... stereotypes) {
-		return of(type, Arrays.asList(stereotypes));
-	}
+    public static Condition<CandidateComponentsMetadata> of(String type, String... stereotypes) {
+        return of(type, Arrays.asList(stereotypes));
+    }
 
-	public static Condition<CandidateComponentsMetadata> of(String type,
-			List<String> stereotypes) {
-		return new Condition<>(metadata -> {
-			ItemMetadata itemMetadata = metadata.getItems().stream()
-					.filter(item -> item.getType().equals(type))
-					.findFirst().orElse(null);
-			return itemMetadata != null && itemMetadata.getStereotypes().size() == stereotypes.size()
-					&& itemMetadata.getStereotypes().containsAll(stereotypes);
-		}, "Candidates with type %s and stereotypes %s", type, stereotypes);
-	}
+    public static Condition<CandidateComponentsMetadata> of(String type,
+                                                            List<String> stereotypes) {
+        return new Condition<>(metadata -> {
+            ItemMetadata itemMetadata = metadata.getItems().stream()
+                    .filter(item -> item.getType().equals(type))
+                    .findFirst().orElse(null);
+            return itemMetadata != null && itemMetadata.getStereotypes().size() == stereotypes.size()
+                    && itemMetadata.getStereotypes().containsAll(stereotypes);
+        }, "Candidates with type %s and stereotypes %s", type, stereotypes);
+    }
 
 }

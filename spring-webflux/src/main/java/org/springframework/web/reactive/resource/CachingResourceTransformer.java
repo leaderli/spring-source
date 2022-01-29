@@ -18,13 +18,12 @@ package org.springframework.web.reactive.resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Mono;
-
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 /**
  * A {@link ResourceTransformer} that checks a {@link Cache} to see if a
@@ -36,47 +35,47 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class CachingResourceTransformer implements ResourceTransformer {
 
-	private static final Log logger = LogFactory.getLog(CachingResourceTransformer.class);
+    private static final Log logger = LogFactory.getLog(CachingResourceTransformer.class);
 
-	private final Cache cache;
-
-
-	public CachingResourceTransformer(Cache cache) {
-		Assert.notNull(cache, "Cache is required");
-		this.cache = cache;
-	}
-
-	public CachingResourceTransformer(CacheManager cacheManager, String cacheName) {
-		Cache cache = cacheManager.getCache(cacheName);
-		if (cache == null) {
-			throw new IllegalArgumentException("Cache '" + cacheName + "' not found");
-		}
-		this.cache = cache;
-	}
+    private final Cache cache;
 
 
-	/**
-	 * Return the configured {@code Cache}.
-	 */
-	public Cache getCache() {
-		return this.cache;
-	}
+    public CachingResourceTransformer(Cache cache) {
+        Assert.notNull(cache, "Cache is required");
+        this.cache = cache;
+    }
+
+    public CachingResourceTransformer(CacheManager cacheManager, String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+            throw new IllegalArgumentException("Cache '" + cacheName + "' not found");
+        }
+        this.cache = cache;
+    }
 
 
-	@Override
-	public Mono<Resource> transform(ServerWebExchange exchange, Resource resource,
-			ResourceTransformerChain transformerChain) {
+    /**
+     * Return the configured {@code Cache}.
+     */
+    public Cache getCache() {
+        return this.cache;
+    }
 
-		Resource cachedResource = this.cache.get(resource, Resource.class);
-		if (cachedResource != null) {
-			if (logger.isTraceEnabled()) {
-				logger.trace(exchange.getLogPrefix() + "Resource resolved from cache");
-			}
-			return Mono.just(cachedResource);
-		}
 
-		return transformerChain.transform(exchange, resource)
-				.doOnNext(transformed -> this.cache.put(resource, transformed));
-	}
+    @Override
+    public Mono<Resource> transform(ServerWebExchange exchange, Resource resource,
+                                    ResourceTransformerChain transformerChain) {
+
+        Resource cachedResource = this.cache.get(resource, Resource.class);
+        if (cachedResource != null) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(exchange.getLogPrefix() + "Resource resolved from cache");
+            }
+            return Mono.just(cachedResource);
+        }
+
+        return transformerChain.transform(exchange, resource)
+                .doOnNext(transformed -> this.cache.put(resource, transformed));
+    }
 
 }

@@ -16,11 +16,7 @@
 
 package org.springframework.messaging.handler.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Annotation for handling exceptions thrown from message-handling methods within a
@@ -34,10 +30,10 @@ import java.lang.annotation.Target;
 @Documented
 public @interface MessageExceptionHandler {
 
-	/**
-	 * Exceptions handled by the annotated method. If empty, will default to any
-	 * exceptions listed in the method argument list.
-	 */
-	Class<? extends Throwable>[] value() default {};
+    /**
+     * Exceptions handled by the annotated method. If empty, will default to any
+     * exceptions listed in the method argument list.
+     */
+    Class<? extends Throwable>[] value() default {};
 
 }

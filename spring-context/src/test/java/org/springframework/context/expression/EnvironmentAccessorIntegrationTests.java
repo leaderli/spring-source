@@ -17,7 +17,6 @@
 package org.springframework.context.expression;
 
 import org.junit.Test;
-
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -36,20 +35,20 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.ge
  */
 public class EnvironmentAccessorIntegrationTests {
 
-	@Test
-	public void braceAccess() {
-		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
-		bf.registerBeanDefinition("testBean",
-				genericBeanDefinition(TestBean.class)
-					.addPropertyValue("name", "#{environment['my.name']}")
-					.getBeanDefinition());
+    @Test
+    public void braceAccess() {
+        DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
+        bf.registerBeanDefinition("testBean",
+                genericBeanDefinition(TestBean.class)
+                        .addPropertyValue("name", "#{environment['my.name']}")
+                        .getBeanDefinition());
 
-		GenericApplicationContext ctx = new GenericApplicationContext(bf);
-		ctx.getEnvironment().getPropertySources().addFirst(new MockPropertySource().withProperty("my.name", "myBean"));
-		ctx.refresh();
+        GenericApplicationContext ctx = new GenericApplicationContext(bf);
+        ctx.getEnvironment().getPropertySources().addFirst(new MockPropertySource().withProperty("my.name", "myBean"));
+        ctx.refresh();
 
-		assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("myBean");
-		ctx.close();
-	}
+        assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("myBean");
+        ctx.close();
+    }
 
 }

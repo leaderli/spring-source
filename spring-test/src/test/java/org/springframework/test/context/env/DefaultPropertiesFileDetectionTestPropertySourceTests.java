@@ -18,7 +18,6 @@ package org.springframework.test.context.env;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -40,26 +39,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource
 public class DefaultPropertiesFileDetectionTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+    @Autowired
+    protected Environment env;
 
 
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		// from DefaultPropertiesFileDetectionTestPropertySourceTests.properties
-		assertEnvironmentValue("riddle", "auto detected");
-	}
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        // from DefaultPropertiesFileDetectionTestPropertySourceTests.properties
+        assertEnvironmentValue("riddle", "auto detected");
+    }
 
-	protected void assertEnvironmentValue(String key, String expected) {
-		assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
-	}
+    protected void assertEnvironmentValue(String key, String expected) {
+        assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
+    }
 
 
-	// -------------------------------------------------------------------
+    // -------------------------------------------------------------------
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @Configuration
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

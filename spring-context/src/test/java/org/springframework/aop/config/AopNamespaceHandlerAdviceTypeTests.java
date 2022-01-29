@@ -17,10 +17,9 @@
 package org.springframework.aop.config;
 
 import org.junit.Test;
-import org.xml.sax.SAXParseException;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.xml.sax.SAXParseException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -30,16 +29,16 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class AopNamespaceHandlerAdviceTypeTests {
 
-	@Test
-	public void testParsingOfAdviceTypes() {
-		new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-ok.xml", getClass());
-	}
+    @Test
+    public void testParsingOfAdviceTypes() {
+        new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-ok.xml", getClass());
+    }
 
-	@Test
-	public void testParsingOfAdviceTypesWithError() {
-		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-error.xml", getClass()))
-			.matches(ex -> ex.contains(SAXParseException.class));
-	}
+    @Test
+    public void testParsingOfAdviceTypesWithError() {
+        assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
+                new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-error.xml", getClass()))
+                .matches(ex -> ex.contains(SAXParseException.class));
+    }
 
 }

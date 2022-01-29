@@ -16,12 +16,8 @@
 
 package org.springframework.web.reactive.result.method.annotation;
 
-import java.net.URI;
-import java.time.Duration;
-
 import org.junit.Test;
 import org.reactivestreams.Publisher;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
+import java.net.URI;
+import java.time.Duration;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -51,86 +50,86 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RequestMappingIntegrationTests extends AbstractRequestMappingIntegrationTests {
 
-	@Override
-	protected ApplicationContext initApplicationContext() {
-		AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
-		wac.register(WebConfig.class, TestRestController.class, LocalConfig.class);
-		wac.refresh();
-		return wac;
-	}
+    @Override
+    protected ApplicationContext initApplicationContext() {
+        AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
+        wac.register(WebConfig.class, TestRestController.class, LocalConfig.class);
+        wac.refresh();
+        return wac;
+    }
 
 
-	@Test
-	public void httpHead() {
-		String url = "http://localhost:" + this.port + "/text";
-		HttpHeaders headers = getRestTemplate().headForHeaders(url);
-		String contentType = headers.getFirst("Content-Type");
-		assertThat(contentType).isNotNull();
-		assertThat(contentType.toLowerCase()).isEqualTo("text/html;charset=utf-8");
-		assertThat(headers.getContentLength()).isEqualTo(3);
-	}
+    @Test
+    public void httpHead() {
+        String url = "http://localhost:" + this.port + "/text";
+        HttpHeaders headers = getRestTemplate().headForHeaders(url);
+        String contentType = headers.getFirst("Content-Type");
+        assertThat(contentType).isNotNull();
+        assertThat(contentType.toLowerCase()).isEqualTo("text/html;charset=utf-8");
+        assertThat(headers.getContentLength()).isEqualTo(3);
+    }
 
-	@Test
-	public void forwardedHeaders() {
+    @Test
+    public void forwardedHeaders() {
 
-		// One integration test to verify triggering of Forwarded header support.
-		// More fine-grained tests in ForwardedHeaderTransformerTests.
+        // One integration test to verify triggering of Forwarded header support.
+        // More fine-grained tests in ForwardedHeaderTransformerTests.
 
-		RequestEntity<Void> request = RequestEntity
-				.get(URI.create("http://localhost:" + this.port + "/uri"))
-				.header("Forwarded", "host=84.198.58.199;proto=https")
-				.build();
-		ResponseEntity<String> entity = getRestTemplate().exchange(request, String.class);
-		assertThat(entity.getBody()).isEqualTo("https://84.198.58.199/uri");
-	}
+        RequestEntity<Void> request = RequestEntity
+                .get(URI.create("http://localhost:" + this.port + "/uri"))
+                .header("Forwarded", "host=84.198.58.199;proto=https")
+                .build();
+        ResponseEntity<String> entity = getRestTemplate().exchange(request, String.class);
+        assertThat(entity.getBody()).isEqualTo("https://84.198.58.199/uri");
+    }
 
-	@Test
-	public void stream() throws Exception {
-		String[] expected = {"0", "1", "2", "3", "4"};
-		assertThat(performGet("/stream", new HttpHeaders(), String[].class).getBody()).isEqualTo(expected);
-	}
-
-
-	@Configuration
-	@EnableWebFlux
-	static class WebConfig {
-	}
+    @Test
+    public void stream() throws Exception {
+        String[] expected = {"0", "1", "2", "3", "4"};
+        assertThat(performGet("/stream", new HttpHeaders(), String[].class).getBody()).isEqualTo(expected);
+    }
 
 
-	@RestController
-	@SuppressWarnings("unused")
-	private static class TestRestController {
-
-		@GetMapping("/text")
-		public String textGet() {
-			return "Foo";
-		}
-
-		// SPR-17593: explicit HEAD should not clash with implicit mapping via GET
-		@RequestMapping(path = "/text", method = RequestMethod.HEAD)
-		public String textHead() {
-			return textGet();
-		}
-
-		@GetMapping("/uri")
-		public String uri(ServerHttpRequest request) {
-			return request.getURI().toString();
-		}
-
-		@GetMapping("/stream")
-		public Publisher<Long> stream() {
-			return testInterval(Duration.ofMillis(50), 5);
-		}
-	}
+    @Configuration
+    @EnableWebFlux
+    static class WebConfig {
+    }
 
 
-	@Configuration
-	static class LocalConfig {
+    @RestController
+    @SuppressWarnings("unused")
+    private static class TestRestController {
 
-		@Bean
-		public ForwardedHeaderTransformer forwardedHeaderTransformer() {
-			return new ForwardedHeaderTransformer();
-		}
-	}
+        @GetMapping("/text")
+        public String textGet() {
+            return "Foo";
+        }
+
+        // SPR-17593: explicit HEAD should not clash with implicit mapping via GET
+        @RequestMapping(path = "/text", method = RequestMethod.HEAD)
+        public String textHead() {
+            return textGet();
+        }
+
+        @GetMapping("/uri")
+        public String uri(ServerHttpRequest request) {
+            return request.getURI().toString();
+        }
+
+        @GetMapping("/stream")
+        public Publisher<Long> stream() {
+            return testInterval(Duration.ofMillis(50), 5);
+        }
+    }
+
+
+    @Configuration
+    static class LocalConfig {
+
+        @Bean
+        public ForwardedHeaderTransformer forwardedHeaderTransformer() {
+            return new ForwardedHeaderTransformer();
+        }
+    }
 
 }

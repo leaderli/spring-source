@@ -16,11 +16,7 @@
 
 package org.springframework.scheduling.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Annotation that marks a method as a candidate for <i>asynchronous</i> execution.
@@ -46,27 +42,28 @@ import java.lang.annotation.Target;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 3.0
  * @see AnnotationAsyncExecutionInterceptor
  * @see AsyncAnnotationAdvisor
+ * @since 3.0
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Async {
 
-	/**
-	 * A qualifier value for the specified asynchronous operation(s).
-	 * <p>May be used to determine the target executor to be used when executing
-	 * the asynchronous operation(s), matching the qualifier value (or the bean
-	 * name) of a specific {@link java.util.concurrent.Executor Executor} or
-	 * {@link org.springframework.core.task.TaskExecutor TaskExecutor}
-	 * bean definition.
-	 * <p>When specified on a class-level {@code @Async} annotation, indicates that the
-	 * given executor should be used for all methods within the class. Method-level use
-	 * of {@code Async#value} always overrides any value set at the class level.
-	 * @since 3.1.2
-	 */
-	String value() default "";
+    /**
+     * A qualifier value for the specified asynchronous operation(s).
+     * <p>May be used to determine the target executor to be used when executing
+     * the asynchronous operation(s), matching the qualifier value (or the bean
+     * name) of a specific {@link java.util.concurrent.Executor Executor} or
+     * {@link org.springframework.core.task.TaskExecutor TaskExecutor}
+     * bean definition.
+     * <p>When specified on a class-level {@code @Async} annotation, indicates that the
+     * given executor should be used for all methods within the class. Method-level use
+     * of {@code Async#value} always overrides any value set at the class level.
+     *
+     * @since 3.1.2
+     */
+    String value() default "";
 
 }

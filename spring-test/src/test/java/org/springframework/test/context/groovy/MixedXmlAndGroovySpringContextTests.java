@@ -18,7 +18,6 @@ package org.springframework.test.context.groovy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,32 +35,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "contextA.groovy", "contextB.xml" })
+@ContextConfiguration({"contextA.groovy", "contextB.xml"})
 public class MixedXmlAndGroovySpringContextTests {
 
-	@Autowired
-	private Employee employee;
+    @Autowired
+    protected String foo;
+    @Autowired
+    protected String bar;
+    @Autowired
+    private Employee employee;
+    @Autowired
+    private Pet pet;
 
-	@Autowired
-	private Pet pet;
+    @Test
+    public final void verifyAnnotationAutowiredFields() {
+        assertThat(this.employee).as("The employee field should have been autowired.").isNotNull();
+        assertThat(this.employee.getName()).isEqualTo("Dilbert");
 
-	@Autowired
-	protected String foo;
+        assertThat(this.pet).as("The pet field should have been autowired.").isNotNull();
+        assertThat(this.pet.getName()).isEqualTo("Dogbert");
 
-	@Autowired
-	protected String bar;
-
-
-	@Test
-	public final void verifyAnnotationAutowiredFields() {
-		assertThat(this.employee).as("The employee field should have been autowired.").isNotNull();
-		assertThat(this.employee.getName()).isEqualTo("Dilbert");
-
-		assertThat(this.pet).as("The pet field should have been autowired.").isNotNull();
-		assertThat(this.pet.getName()).isEqualTo("Dogbert");
-
-		assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Groovy Foo");
-		assertThat(this.bar).as("The bar field should have been autowired.").isEqualTo("XML Bar");
-	}
+        assertThat(this.foo).as("The foo field should have been autowired.").isEqualTo("Groovy Foo");
+        assertThat(this.bar).as("The bar field should have been autowired.").isEqualTo("XML Bar");
+    }
 
 }

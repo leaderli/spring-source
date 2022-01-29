@@ -16,11 +16,7 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Indicates that a component is only eligible for registration when all
@@ -53,18 +49,18 @@ import java.lang.annotation.Target;
  *
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 4.0
  * @see Condition
+ * @since 4.0
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Conditional {
 
-	/**
-	 * All {@link Condition Conditions} that must {@linkplain Condition#matches match}
-	 * in order for the component to be registered.
-	 */
-	Class<? extends Condition>[] value();
+    /**
+     * All {@link Condition Conditions} that must {@linkplain Condition#matches match}
+     * in order for the component to be registered.
+     */
+    Class<? extends Condition>[] value();
 
 }

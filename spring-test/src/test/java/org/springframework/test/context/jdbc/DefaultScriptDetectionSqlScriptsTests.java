@@ -17,7 +17,6 @@
 package org.springframework.test.context.jdbc;
 
 import org.junit.Test;
-
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -35,19 +34,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class DefaultScriptDetectionSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Test
-	public void classLevel() {
-		assertNumUsers(2);
-	}
+    @Test
+    public void classLevel() {
+        assertNumUsers(2);
+    }
 
-	@Test
-	@Sql
-	public void methodLevel() {
-		assertNumUsers(3);
-	}
+    @Test
+    @Sql
+    public void methodLevel() {
+        assertNumUsers(3);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+    protected void assertNumUsers(int expected) {
+        assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+    }
 
 }

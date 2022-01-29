@@ -16,12 +16,12 @@
 
 package org.springframework.web.socket.config.annotation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A variation of {@link WebSocketConfigurationSupport} that detects implementations of
@@ -34,22 +34,22 @@ import org.springframework.util.CollectionUtils;
 @Configuration
 public class DelegatingWebSocketConfiguration extends WebSocketConfigurationSupport {
 
-	private final List<WebSocketConfigurer> configurers = new ArrayList<>();
+    private final List<WebSocketConfigurer> configurers = new ArrayList<>();
 
 
-	@Autowired(required = false)
-	public void setConfigurers(List<WebSocketConfigurer> configurers) {
-		if (!CollectionUtils.isEmpty(configurers)) {
-			this.configurers.addAll(configurers);
-		}
-	}
+    @Autowired(required = false)
+    public void setConfigurers(List<WebSocketConfigurer> configurers) {
+        if (!CollectionUtils.isEmpty(configurers)) {
+            this.configurers.addAll(configurers);
+        }
+    }
 
 
-	@Override
-	protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		for (WebSocketConfigurer configurer : this.configurers) {
-			configurer.registerWebSocketHandlers(registry);
-		}
-	}
+    @Override
+    protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        for (WebSocketConfigurer configurer : this.configurers) {
+            configurer.registerWebSocketHandlers(registry);
+        }
+    }
 
 }

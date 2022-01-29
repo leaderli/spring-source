@@ -16,13 +16,13 @@
 
 package org.springframework.core.env;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,142 +36,143 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SystemEnvironmentPropertySourceTests {
 
-	private Map<String, Object> envMap;
+    private Map<String, Object> envMap;
 
-	private PropertySource<?> ps;
-
-
-	@Before
-	public void setUp() {
-		envMap = new HashMap<>();
-		ps = new SystemEnvironmentPropertySource("sysEnv", envMap);
-	}
+    private PropertySource<?> ps;
 
 
-	@Test
-	public void none() {
-		assertThat(ps.containsProperty("a.key")).isEqualTo(false);
-		assertThat(ps.getProperty("a.key")).isNull();
-	}
+    @Before
+    public void setUp() {
+        envMap = new HashMap<>();
+        ps = new SystemEnvironmentPropertySource("sysEnv", envMap);
+    }
 
-	@Test
-	public void normalWithoutPeriod() {
-		envMap.put("akey", "avalue");
 
-		assertThat(ps.containsProperty("akey")).isEqualTo(true);
-		assertThat(ps.getProperty("akey")).isEqualTo("avalue");
-	}
+    @Test
+    public void none() {
+        assertThat(ps.containsProperty("a.key")).isEqualTo(false);
+        assertThat(ps.getProperty("a.key")).isNull();
+    }
 
-	@Test
-	public void normalWithPeriod() {
-		envMap.put("a.key", "a.value");
+    @Test
+    public void normalWithoutPeriod() {
+        envMap.put("akey", "avalue");
 
-		assertThat(ps.containsProperty("a.key")).isEqualTo(true);
-		assertThat(ps.getProperty("a.key")).isEqualTo("a.value");
-	}
+        assertThat(ps.containsProperty("akey")).isEqualTo(true);
+        assertThat(ps.getProperty("akey")).isEqualTo("avalue");
+    }
 
-	@Test
-	public void withUnderscore() {
-		envMap.put("a_key", "a_value");
+    @Test
+    public void normalWithPeriod() {
+        envMap.put("a.key", "a.value");
 
-		assertThat(ps.containsProperty("a_key")).isEqualTo(true);
-		assertThat(ps.containsProperty("a.key")).isEqualTo(true);
+        assertThat(ps.containsProperty("a.key")).isEqualTo(true);
+        assertThat(ps.getProperty("a.key")).isEqualTo("a.value");
+    }
 
-		assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
-		assertThat( ps.getProperty("a.key")).isEqualTo("a_value");
-	}
+    @Test
+    public void withUnderscore() {
+        envMap.put("a_key", "a_value");
 
-	@Test
-	public void withBothPeriodAndUnderscore() {
-		envMap.put("a_key", "a_value");
-		envMap.put("a.key", "a.value");
+        assertThat(ps.containsProperty("a_key")).isEqualTo(true);
+        assertThat(ps.containsProperty("a.key")).isEqualTo(true);
 
-		assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
-		assertThat( ps.getProperty("a.key")).isEqualTo("a.value");
-	}
+        assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
+        assertThat(ps.getProperty("a.key")).isEqualTo("a_value");
+    }
 
-	@Test
-	public void withUppercase() {
-		envMap.put("A_KEY", "a_value");
-		envMap.put("A_LONG_KEY", "a_long_value");
-		envMap.put("A_DOT.KEY", "a_dot_value");
-		envMap.put("A_HYPHEN-KEY", "a_hyphen_value");
+    @Test
+    public void withBothPeriodAndUnderscore() {
+        envMap.put("a_key", "a_value");
+        envMap.put("a.key", "a.value");
 
-		assertThat(ps.containsProperty("A_KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("a_key")).isEqualTo(true);
-		assertThat(ps.containsProperty("a.key")).isEqualTo(true);
-		assertThat(ps.containsProperty("a-key")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_LONG_KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.LONG.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-LONG-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.LONG-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-LONG.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_long_KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.long.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-long-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.long-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-long.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_DOT.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-DOT.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_dot.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A-dot.KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_HYPHEN-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.HYPHEN-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A_hyphen-KEY")).isEqualTo(true);
-		assertThat(ps.containsProperty("A.hyphen-KEY")).isEqualTo(true);
+        assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
+        assertThat(ps.getProperty("a.key")).isEqualTo("a.value");
+    }
 
-		assertThat(ps.getProperty("A_KEY")).isEqualTo("a_value");
-		assertThat(ps.getProperty("A.KEY")).isEqualTo("a_value");
-		assertThat(ps.getProperty("A-KEY")).isEqualTo("a_value");
-		assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
-		assertThat(ps.getProperty("a.key")).isEqualTo("a_value");
-		assertThat(ps.getProperty("a-key")).isEqualTo("a_value");
-		assertThat(ps.getProperty("A_LONG_KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A.LONG.KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A-LONG-KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A.LONG-KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A-LONG.KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A_long_KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A.long.KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A-long-KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A.long-KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A-long.KEY")).isEqualTo("a_long_value");
-		assertThat(ps.getProperty("A_DOT.KEY")).isEqualTo("a_dot_value");
-		assertThat(ps.getProperty("A-DOT.KEY")).isEqualTo("a_dot_value");
-		assertThat(ps.getProperty("A_dot.KEY")).isEqualTo("a_dot_value");
-		assertThat(ps.getProperty("A-dot.KEY")).isEqualTo("a_dot_value");
-		assertThat(ps.getProperty("A_HYPHEN-KEY")).isEqualTo("a_hyphen_value");
-		assertThat(ps.getProperty("A.HYPHEN-KEY")).isEqualTo("a_hyphen_value");
-		assertThat(ps.getProperty("A_hyphen-KEY")).isEqualTo("a_hyphen_value");
-		assertThat(ps.getProperty("A.hyphen-KEY")).isEqualTo("a_hyphen_value");
-	}
+    @Test
+    public void withUppercase() {
+        envMap.put("A_KEY", "a_value");
+        envMap.put("A_LONG_KEY", "a_long_value");
+        envMap.put("A_DOT.KEY", "a_dot_value");
+        envMap.put("A_HYPHEN-KEY", "a_hyphen_value");
 
-	@Test
-	@SuppressWarnings("serial")
-	public void withSecurityConstraints() throws Exception {
-		envMap = new HashMap<String, Object>() {
-			@Override
-			public boolean containsKey(Object key) {
-				throw new UnsupportedOperationException();
-			}
-			@Override
-			public Set<String> keySet() {
-				return new HashSet<>(super.keySet());
-			}
-		};
-		envMap.put("A_KEY", "a_value");
+        assertThat(ps.containsProperty("A_KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("a_key")).isEqualTo(true);
+        assertThat(ps.containsProperty("a.key")).isEqualTo(true);
+        assertThat(ps.containsProperty("a-key")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_LONG_KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.LONG.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-LONG-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.LONG-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-LONG.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_long_KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.long.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-long-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.long-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-long.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_DOT.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-DOT.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_dot.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A-dot.KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_HYPHEN-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.HYPHEN-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A_hyphen-KEY")).isEqualTo(true);
+        assertThat(ps.containsProperty("A.hyphen-KEY")).isEqualTo(true);
 
-		ps = new SystemEnvironmentPropertySource("sysEnv", envMap) {
-			@Override
-			protected boolean isSecurityManagerPresent() {
-				return true;
-			}
-		};
+        assertThat(ps.getProperty("A_KEY")).isEqualTo("a_value");
+        assertThat(ps.getProperty("A.KEY")).isEqualTo("a_value");
+        assertThat(ps.getProperty("A-KEY")).isEqualTo("a_value");
+        assertThat(ps.getProperty("a_key")).isEqualTo("a_value");
+        assertThat(ps.getProperty("a.key")).isEqualTo("a_value");
+        assertThat(ps.getProperty("a-key")).isEqualTo("a_value");
+        assertThat(ps.getProperty("A_LONG_KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A.LONG.KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A-LONG-KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A.LONG-KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A-LONG.KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A_long_KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A.long.KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A-long-KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A.long-KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A-long.KEY")).isEqualTo("a_long_value");
+        assertThat(ps.getProperty("A_DOT.KEY")).isEqualTo("a_dot_value");
+        assertThat(ps.getProperty("A-DOT.KEY")).isEqualTo("a_dot_value");
+        assertThat(ps.getProperty("A_dot.KEY")).isEqualTo("a_dot_value");
+        assertThat(ps.getProperty("A-dot.KEY")).isEqualTo("a_dot_value");
+        assertThat(ps.getProperty("A_HYPHEN-KEY")).isEqualTo("a_hyphen_value");
+        assertThat(ps.getProperty("A.HYPHEN-KEY")).isEqualTo("a_hyphen_value");
+        assertThat(ps.getProperty("A_hyphen-KEY")).isEqualTo("a_hyphen_value");
+        assertThat(ps.getProperty("A.hyphen-KEY")).isEqualTo("a_hyphen_value");
+    }
 
-		assertThat(ps.containsProperty("A_KEY")).isEqualTo(true);
-		assertThat(ps.getProperty("A_KEY")).isEqualTo("a_value");
-	}
+    @Test
+    @SuppressWarnings("serial")
+    public void withSecurityConstraints() throws Exception {
+        envMap = new HashMap<String, Object>() {
+            @Override
+            public boolean containsKey(Object key) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Set<String> keySet() {
+                return new HashSet<>(super.keySet());
+            }
+        };
+        envMap.put("A_KEY", "a_value");
+
+        ps = new SystemEnvironmentPropertySource("sysEnv", envMap) {
+            @Override
+            protected boolean isSecurityManagerPresent() {
+                return true;
+            }
+        };
+
+        assertThat(ps.containsProperty("A_KEY")).isEqualTo(true);
+        assertThat(ps.getProperty("A_KEY")).isEqualTo("a_value");
+    }
 
 }

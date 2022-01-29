@@ -16,13 +16,12 @@
 
 package org.springframework.web.accept;
 
+import org.junit.Test;
+import org.springframework.http.MediaType;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
-import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,33 +33,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MappingMediaTypeFileExtensionResolverTests {
 
-	private final Map<String, MediaType> mapping = Collections.singletonMap("json", MediaType.APPLICATION_JSON);
-	private final MappingMediaTypeFileExtensionResolver resolver = new MappingMediaTypeFileExtensionResolver(this.mapping);
+    private final Map<String, MediaType> mapping = Collections.singletonMap("json", MediaType.APPLICATION_JSON);
+    private final MappingMediaTypeFileExtensionResolver resolver = new MappingMediaTypeFileExtensionResolver(this.mapping);
 
-	@Test
-	public void resolveExtensions() {
-		List<String> extensions = this.resolver.resolveFileExtensions(MediaType.APPLICATION_JSON);
+    @Test
+    public void resolveExtensions() {
+        List<String> extensions = this.resolver.resolveFileExtensions(MediaType.APPLICATION_JSON);
 
-		assertThat(extensions).size().isEqualTo(1);
-		assertThat(extensions.get(0)).isEqualTo("json");
-	}
+        assertThat(extensions).size().isEqualTo(1);
+        assertThat(extensions.get(0)).isEqualTo("json");
+    }
 
-	@Test
-	public void resolveExtensionsNoMatch() {
-		List<String> extensions = this.resolver.resolveFileExtensions(MediaType.TEXT_HTML);
+    @Test
+    public void resolveExtensionsNoMatch() {
+        List<String> extensions = this.resolver.resolveFileExtensions(MediaType.TEXT_HTML);
 
-		assertThat(extensions).isEmpty();
-	}
+        assertThat(extensions).isEmpty();
+    }
 
-	/**
-	 * Unit test for SPR-13747 - ensures that reverse lookup of media type from media
-	 * type key is case-insensitive.
-	 */
-	@Test
-	public void lookupMediaTypeCaseInsensitive() {
-		MediaType mediaType = this.resolver.lookupMediaType("JSON");
+    /**
+     * Unit test for SPR-13747 - ensures that reverse lookup of media type from media
+     * type key is case-insensitive.
+     */
+    @Test
+    public void lookupMediaTypeCaseInsensitive() {
+        MediaType mediaType = this.resolver.lookupMediaType("JSON");
 
-		assertThat(mediaType).isEqualTo(MediaType.APPLICATION_JSON);
-	}
+        assertThat(mediaType).isEqualTo(MediaType.APPLICATION_JSON);
+    }
 
 }

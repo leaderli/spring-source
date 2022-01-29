@@ -16,9 +16,8 @@
 
 package org.springframework.ejb.config;
 
-import org.w3c.dom.Element;
-
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
+import org.w3c.dom.Element;
 
 /**
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser}
@@ -31,9 +30,9 @@ import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
  */
 class LocalStatelessSessionBeanDefinitionParser extends AbstractJndiLocatingBeanDefinitionParser {
 
-	@Override
-	protected String getBeanClassName(Element element) {
-		return "org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean";
-	}
+    @Override
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean";
+    }
 
 }

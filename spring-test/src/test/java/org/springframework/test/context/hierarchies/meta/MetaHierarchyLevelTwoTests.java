@@ -17,7 +17,6 @@
 package org.springframework.test.context.hierarchies.meta;
 
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,34 +35,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("prod")
 public class MetaHierarchyLevelTwoTests extends MetaHierarchyLevelOneTests {
 
-	@Configuration
-	@Profile("prod")
-	static class Config {
+    @Autowired
+    protected ApplicationContext context;
+    @Autowired
+    private String bar;
 
-		@Bean
-		public String bar() {
-			return "Prod Bar";
-		}
-	}
+    @Test
+    public void bar() {
+        assertThat(bar).isEqualTo("Prod Bar");
+    }
 
+    @Test
+    public void contextHierarchy() {
+        assertThat(context).as("child ApplicationContext").isNotNull();
+        assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
+        assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
+    }
 
-	@Autowired
-	protected ApplicationContext context;
+    @Configuration
+    @Profile("prod")
+    static class Config {
 
-	@Autowired
-	private String bar;
-
-
-	@Test
-	public void bar() {
-		assertThat(bar).isEqualTo("Prod Bar");
-	}
-
-	@Test
-	public void contextHierarchy() {
-		assertThat(context).as("child ApplicationContext").isNotNull();
-		assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
-		assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
-	}
+        @Bean
+        public String bar() {
+            return "Prod Bar";
+        }
+    }
 
 }

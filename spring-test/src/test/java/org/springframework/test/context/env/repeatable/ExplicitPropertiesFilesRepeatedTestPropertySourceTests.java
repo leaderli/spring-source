@@ -17,7 +17,6 @@
 package org.springframework.test.context.env.repeatable;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -35,11 +34,11 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource("second.properties")
 public class ExplicitPropertiesFilesRepeatedTestPropertySourceTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	public void test() {
-		assertEnvironmentValue("alpha", "omega");
-		assertEnvironmentValue("first", "1111");
-		assertEnvironmentValue("second", "2222");
-	}
+    @Test
+    public void test() {
+        assertEnvironmentValue("alpha", "omega");
+        assertEnvironmentValue("first", "1111");
+        assertEnvironmentValue("second", "2222");
+    }
 
 }

@@ -16,22 +16,22 @@
 
 package org.springframework.scripting.groovy;
 
+import org.codehaus.groovy.control.BytecodeProcessor;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.codehaus.groovy.control.BytecodeProcessor;
 
 /**
  * @author Juergen Hoeller
  */
 public class MyBytecodeProcessor implements BytecodeProcessor {
 
-	public final Set<String> processed = new HashSet<String>();
+    public final Set<String> processed = new HashSet<String>();
 
-	@Override
-	public byte[] processBytecode(String name, byte[] original) {
-		this.processed.add(name);
-		return original;
-	}
+    @Override
+    public byte[] processBytecode(String name, byte[] original) {
+        this.processed.add(name);
+        return original;
+    }
 
 }

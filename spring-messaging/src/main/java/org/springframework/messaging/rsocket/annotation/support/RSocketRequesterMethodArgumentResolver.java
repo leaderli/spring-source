@@ -17,13 +17,12 @@
 package org.springframework.messaging.rsocket.annotation.support;
 
 import io.rsocket.RSocket;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.reactive.HandlerMethodArgumentResolver;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Mono;
 
 /**
  * Resolves arguments of type {@link RSocket} that can be used for making
@@ -34,37 +33,35 @@ import org.springframework.util.Assert;
  */
 public class RSocketRequesterMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-	/**
-	 * Message header name that is expected to have the {@link RSocket} to
-	 * initiate new interactions to the remote peer with.
-	 */
-	public static final String RSOCKET_REQUESTER_HEADER = "rsocketRequester";
+    /**
+     * Message header name that is expected to have the {@link RSocket} to
+     * initiate new interactions to the remote peer with.
+     */
+    public static final String RSOCKET_REQUESTER_HEADER = "rsocketRequester";
 
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		Class<?> type = parameter.getParameterType();
-		return (RSocketRequester.class.equals(type) || RSocket.class.isAssignableFrom(type));
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> type = parameter.getParameterType();
+        return (RSocketRequester.class.equals(type) || RSocket.class.isAssignableFrom(type));
+    }
 
-	@Override
-	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
-		Object headerValue = message.getHeaders().get(RSOCKET_REQUESTER_HEADER);
-		Assert.notNull(headerValue, "Missing '" + RSOCKET_REQUESTER_HEADER + "'");
+    @Override
+    public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
+        Object headerValue = message.getHeaders().get(RSOCKET_REQUESTER_HEADER);
+        Assert.notNull(headerValue, "Missing '" + RSOCKET_REQUESTER_HEADER + "'");
 
-		Assert.isInstanceOf(RSocketRequester.class, headerValue, "Expected header value of type RSocketRequester");
-		RSocketRequester requester = (RSocketRequester) headerValue;
+        Assert.isInstanceOf(RSocketRequester.class, headerValue, "Expected header value of type RSocketRequester");
+        RSocketRequester requester = (RSocketRequester) headerValue;
 
-		Class<?> type = parameter.getParameterType();
-		if (RSocketRequester.class.equals(type)) {
-			return Mono.just(requester);
-		}
-		else if (RSocket.class.isAssignableFrom(type)) {
-			return Mono.just(requester.rsocket());
-		}
-		else {
-			return Mono.error(new IllegalArgumentException("Unexpected parameter type: " + parameter));
-		}
-	}
+        Class<?> type = parameter.getParameterType();
+        if (RSocketRequester.class.equals(type)) {
+            return Mono.just(requester);
+        } else if (RSocket.class.isAssignableFrom(type)) {
+            return Mono.just(requester.rsocket());
+        } else {
+            return Mono.error(new IllegalArgumentException("Unexpected parameter type: " + parameter));
+        }
+    }
 
 }

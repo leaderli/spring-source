@@ -17,7 +17,6 @@
 package org.springframework.test.context.env.repeatable;
 
 import org.junit.Test;
-
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -32,12 +31,12 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "second = local override")
 public class LocalInlinedPropertyOverridesInheritedInlinedPropertyTests extends RepeatedTestPropertySourceTests {
 
-	@Test
-	@Override
-	public void test() {
-		assertEnvironmentValue("key1", "local value");
-		assertEnvironmentValue("second", "local override");
-		assertEnvironmentValue("first", "repeated override");
-	}
+    @Test
+    @Override
+    public void test() {
+        assertEnvironmentValue("key1", "local value");
+        assertEnvironmentValue("second", "local override");
+        assertEnvironmentValue("first", "repeated override");
+    }
 
 }

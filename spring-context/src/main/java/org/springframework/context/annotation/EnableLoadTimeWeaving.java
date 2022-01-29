@@ -16,14 +16,10 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.context.weaving.DefaultContextLoadTimeWeaver;
 import org.springframework.instrument.classloading.LoadTimeWeaver;
+
+import java.lang.annotation.*;
 
 /**
  * Activates a Spring {@link LoadTimeWeaver} for this application context, available as
@@ -40,7 +36,7 @@ import org.springframework.instrument.classloading.LoadTimeWeaver;
  *
  *     // application-specific &#064;Bean definitions ...
  * }</pre>
- *
+ * <p>
  * The example above is equivalent to the following Spring XML configuration:
  *
  * <pre class="code">
@@ -127,10 +123,10 @@ import org.springframework.instrument.classloading.LoadTimeWeaver;
  * {@code @EnableSpringConfigured} (included in the {@code spring-aspects} module)
  *
  * @author Chris Beams
- * @since 3.1
  * @see LoadTimeWeaver
  * @see DefaultContextLoadTimeWeaver
  * @see org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter
+ * @since 3.1
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -138,34 +134,34 @@ import org.springframework.instrument.classloading.LoadTimeWeaver;
 @Import(LoadTimeWeavingConfiguration.class)
 public @interface EnableLoadTimeWeaving {
 
-	/**
-	 * Whether AspectJ weaving should be enabled.
-	 */
-	AspectJWeaving aspectjWeaving() default AspectJWeaving.AUTODETECT;
+    /**
+     * Whether AspectJ weaving should be enabled.
+     */
+    AspectJWeaving aspectjWeaving() default AspectJWeaving.AUTODETECT;
 
 
-	/**
-	 * AspectJ weaving enablement options.
-	 */
-	enum AspectJWeaving {
+    /**
+     * AspectJ weaving enablement options.
+     */
+    enum AspectJWeaving {
 
-		/**
-		 * Switches on Spring-based AspectJ load-time weaving.
-		 */
-		ENABLED,
+        /**
+         * Switches on Spring-based AspectJ load-time weaving.
+         */
+        ENABLED,
 
-		/**
-		 * Switches off Spring-based AspectJ load-time weaving (even if a
-		 * "META-INF/aop.xml" resource is present on the classpath).
-		 */
-		DISABLED,
+        /**
+         * Switches off Spring-based AspectJ load-time weaving (even if a
+         * "META-INF/aop.xml" resource is present on the classpath).
+         */
+        DISABLED,
 
-		/**
-		 * Switches on AspectJ load-time weaving if a "META-INF/aop.xml" resource
-		 * is present in the classpath. If there is no such resource, then AspectJ
-		 * load-time weaving will be switched off.
-		 */
-		AUTODETECT;
-	}
+        /**
+         * Switches on AspectJ load-time weaving if a "META-INF/aop.xml" resource
+         * is present in the classpath. If there is no such resource, then AspectJ
+         * load-time weaving will be switched off.
+         */
+        AUTODETECT;
+    }
 
 }

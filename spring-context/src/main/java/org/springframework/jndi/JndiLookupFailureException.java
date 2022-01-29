@@ -16,9 +16,9 @@
 
 package org.springframework.jndi;
 
-import javax.naming.NamingException;
-
 import org.springframework.core.NestedRuntimeException;
+
+import javax.naming.NamingException;
 
 /**
  * RuntimeException to be thrown in case of JNDI lookup failures,
@@ -32,14 +32,15 @@ import org.springframework.core.NestedRuntimeException;
 @SuppressWarnings("serial")
 public class JndiLookupFailureException extends NestedRuntimeException {
 
-	/**
-	 * Construct a new JndiLookupFailureException,
-	 * wrapping the given JNDI NamingException.
-	 * @param msg the detail message
-	 * @param cause the NamingException root cause
-	 */
-	public JndiLookupFailureException(String msg, NamingException cause) {
-		super(msg, cause);
-	}
+    /**
+     * Construct a new JndiLookupFailureException,
+     * wrapping the given JNDI NamingException.
+     *
+     * @param msg   the detail message
+     * @param cause the NamingException root cause
+     */
+    public JndiLookupFailureException(String msg, NamingException cause) {
+        super(msg, cause);
+    }
 
 }

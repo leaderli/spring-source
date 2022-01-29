@@ -18,7 +18,6 @@ package org.springframework.aop.config;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
@@ -46,99 +45,99 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AopNamespaceHandlerScopeIntegrationTests {
 
-	private static final String CONTEXT = format("classpath:%s-context.xml",
-			ClassUtils.convertClassNameToResourcePath(AopNamespaceHandlerScopeIntegrationTests.class.getName()));
+    private static final String CONTEXT = format("classpath:%s-context.xml",
+            ClassUtils.convertClassNameToResourcePath(AopNamespaceHandlerScopeIntegrationTests.class.getName()));
 
-	private ApplicationContext context;
-
-
-	@Before
-	public void setUp() {
-		XmlWebApplicationContext wac = new XmlWebApplicationContext();
-		wac.setConfigLocations(CONTEXT);
-		wac.refresh();
-		this.context = wac;
-	}
+    private ApplicationContext context;
 
 
-	@Test
-	public void testSingletonScoping() throws Exception {
-		ITestBean scoped = (ITestBean) this.context.getBean("singletonScoped");
-		assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
-		boolean condition = scoped instanceof TestBean;
-		assertThat(condition).as("Should be target class proxy").isTrue();
-		String rob = "Rob Harrop";
-		String bram = "Bram Smeets";
-		assertThat(scoped.getName()).isEqualTo(rob);
-		scoped.setName(bram);
-		assertThat(scoped.getName()).isEqualTo(bram);
-		ITestBean deserialized = (ITestBean) SerializationTestUtils.serializeAndDeserialize(scoped);
-		assertThat(deserialized.getName()).isEqualTo(bram);
-	}
+    @Before
+    public void setUp() {
+        XmlWebApplicationContext wac = new XmlWebApplicationContext();
+        wac.setConfigLocations(CONTEXT);
+        wac.refresh();
+        this.context = wac;
+    }
 
-	@Test
-	public void testRequestScoping() throws Exception {
-		MockHttpServletRequest oldRequest = new MockHttpServletRequest();
-		MockHttpServletRequest newRequest = new MockHttpServletRequest();
 
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(oldRequest));
+    @Test
+    public void testSingletonScoping() throws Exception {
+        ITestBean scoped = (ITestBean) this.context.getBean("singletonScoped");
+        assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
+        boolean condition = scoped instanceof TestBean;
+        assertThat(condition).as("Should be target class proxy").isTrue();
+        String rob = "Rob Harrop";
+        String bram = "Bram Smeets";
+        assertThat(scoped.getName()).isEqualTo(rob);
+        scoped.setName(bram);
+        assertThat(scoped.getName()).isEqualTo(bram);
+        ITestBean deserialized = (ITestBean) SerializationTestUtils.serializeAndDeserialize(scoped);
+        assertThat(deserialized.getName()).isEqualTo(bram);
+    }
 
-		ITestBean scoped = (ITestBean) this.context.getBean("requestScoped");
-		assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
-		boolean condition = scoped instanceof TestBean;
-		assertThat(condition).as("Should be target class proxy").isTrue();
+    @Test
+    public void testRequestScoping() throws Exception {
+        MockHttpServletRequest oldRequest = new MockHttpServletRequest();
+        MockHttpServletRequest newRequest = new MockHttpServletRequest();
 
-		ITestBean testBean = (ITestBean) this.context.getBean("testBean");
-		assertThat(AopUtils.isAopProxy(testBean)).as("Should be AOP proxy").isTrue();
-		boolean condition1 = testBean instanceof TestBean;
-		assertThat(condition1).as("Regular bean should be JDK proxy").isFalse();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(oldRequest));
 
-		String rob = "Rob Harrop";
-		String bram = "Bram Smeets";
+        ITestBean scoped = (ITestBean) this.context.getBean("requestScoped");
+        assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
+        boolean condition = scoped instanceof TestBean;
+        assertThat(condition).as("Should be target class proxy").isTrue();
 
-		assertThat(scoped.getName()).isEqualTo(rob);
-		scoped.setName(bram);
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(newRequest));
-		assertThat(scoped.getName()).isEqualTo(rob);
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(oldRequest));
-		assertThat(scoped.getName()).isEqualTo(bram);
+        ITestBean testBean = (ITestBean) this.context.getBean("testBean");
+        assertThat(AopUtils.isAopProxy(testBean)).as("Should be AOP proxy").isTrue();
+        boolean condition1 = testBean instanceof TestBean;
+        assertThat(condition1).as("Regular bean should be JDK proxy").isFalse();
 
-		assertThat(((Advised) scoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
-	}
+        String rob = "Rob Harrop";
+        String bram = "Bram Smeets";
 
-	@Test
-	public void testSessionScoping() throws Exception {
-		MockHttpSession oldSession = new MockHttpSession();
-		MockHttpSession newSession = new MockHttpSession();
+        assertThat(scoped.getName()).isEqualTo(rob);
+        scoped.setName(bram);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(newRequest));
+        assertThat(scoped.getName()).isEqualTo(rob);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(oldRequest));
+        assertThat(scoped.getName()).isEqualTo(bram);
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setSession(oldSession);
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        assertThat(((Advised) scoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
+    }
 
-		ITestBean scoped = (ITestBean) this.context.getBean("sessionScoped");
-		assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
-		boolean condition1 = scoped instanceof TestBean;
-		assertThat(condition1).as("Should not be target class proxy").isFalse();
+    @Test
+    public void testSessionScoping() throws Exception {
+        MockHttpSession oldSession = new MockHttpSession();
+        MockHttpSession newSession = new MockHttpSession();
 
-		ITestBean scopedAlias = (ITestBean) this.context.getBean("sessionScopedAlias");
-		assertThat(scopedAlias).isSameAs(scoped);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(oldSession);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-		ITestBean testBean = (ITestBean) this.context.getBean("testBean");
-		assertThat(AopUtils.isAopProxy(testBean)).as("Should be AOP proxy").isTrue();
-		boolean condition = testBean instanceof TestBean;
-		assertThat(condition).as("Regular bean should be JDK proxy").isFalse();
+        ITestBean scoped = (ITestBean) this.context.getBean("sessionScoped");
+        assertThat(AopUtils.isAopProxy(scoped)).as("Should be AOP proxy").isTrue();
+        boolean condition1 = scoped instanceof TestBean;
+        assertThat(condition1).as("Should not be target class proxy").isFalse();
 
-		String rob = "Rob Harrop";
-		String bram = "Bram Smeets";
+        ITestBean scopedAlias = (ITestBean) this.context.getBean("sessionScopedAlias");
+        assertThat(scopedAlias).isSameAs(scoped);
 
-		assertThat(scoped.getName()).isEqualTo(rob);
-		scoped.setName(bram);
-		request.setSession(newSession);
-		assertThat(scoped.getName()).isEqualTo(rob);
-		request.setSession(oldSession);
-		assertThat(scoped.getName()).isEqualTo(bram);
+        ITestBean testBean = (ITestBean) this.context.getBean("testBean");
+        assertThat(AopUtils.isAopProxy(testBean)).as("Should be AOP proxy").isTrue();
+        boolean condition = testBean instanceof TestBean;
+        assertThat(condition).as("Regular bean should be JDK proxy").isFalse();
 
-		assertThat(((Advised) scoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
-	}
+        String rob = "Rob Harrop";
+        String bram = "Bram Smeets";
+
+        assertThat(scoped.getName()).isEqualTo(rob);
+        scoped.setName(bram);
+        request.setSession(newSession);
+        assertThat(scoped.getName()).isEqualTo(rob);
+        request.setSession(oldSession);
+        assertThat(scoped.getName()).isEqualTo(bram);
+
+        assertThat(((Advised) scoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
+    }
 
 }

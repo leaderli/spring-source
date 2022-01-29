@@ -16,15 +16,14 @@
 
 package org.springframework.web.reactive.resource;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 /**
  * Base {@link ResourceResolver} providing consistent logging.
@@ -34,28 +33,28 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public abstract class AbstractResourceResolver implements ResourceResolver {
 
-	protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
 
-	@Override
-	public Mono<Resource> resolveResource(@Nullable ServerWebExchange exchange, String requestPath,
-			List<? extends Resource> locations, ResourceResolverChain chain) {
+    @Override
+    public Mono<Resource> resolveResource(@Nullable ServerWebExchange exchange, String requestPath,
+                                          List<? extends Resource> locations, ResourceResolverChain chain) {
 
-		return resolveResourceInternal(exchange, requestPath, locations, chain);
-	}
+        return resolveResourceInternal(exchange, requestPath, locations, chain);
+    }
 
-	@Override
-	public Mono<String> resolveUrlPath(String resourceUrlPath, List<? extends Resource> locations,
-			ResourceResolverChain chain) {
+    @Override
+    public Mono<String> resolveUrlPath(String resourceUrlPath, List<? extends Resource> locations,
+                                       ResourceResolverChain chain) {
 
-		return resolveUrlPathInternal(resourceUrlPath, locations, chain);
-	}
+        return resolveUrlPathInternal(resourceUrlPath, locations, chain);
+    }
 
 
-	protected abstract Mono<Resource> resolveResourceInternal(@Nullable ServerWebExchange exchange,
-			String requestPath, List<? extends Resource> locations, ResourceResolverChain chain);
+    protected abstract Mono<Resource> resolveResourceInternal(@Nullable ServerWebExchange exchange,
+                                                              String requestPath, List<? extends Resource> locations, ResourceResolverChain chain);
 
-	protected abstract Mono<String> resolveUrlPathInternal(String resourceUrlPath,
-			List<? extends Resource> locations, ResourceResolverChain chain);
+    protected abstract Mono<String> resolveUrlPathInternal(String resourceUrlPath,
+                                                           List<? extends Resource> locations, ResourceResolverChain chain);
 
 }

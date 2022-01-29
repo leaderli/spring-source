@@ -16,12 +16,7 @@
 
 package org.springframework.jmx.export.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Method-level annotation used to provide metadata about operation parameters,
@@ -31,9 +26,9 @@ import java.lang.annotation.Target;
  * <p>As of Spring Framework 4.2.4, this annotation is declared as repeatable.
  *
  * @author Rob Harrop
- * @since 1.2
  * @see ManagedOperationParameters#value
  * @see org.springframework.jmx.export.metadata.ManagedOperationParameter
+ * @since 1.2
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -41,8 +36,8 @@ import java.lang.annotation.Target;
 @Repeatable(ManagedOperationParameters.class)
 public @interface ManagedOperationParameter {
 
-	String name();
+    String name();
 
-	String description();
+    String description();
 
 }

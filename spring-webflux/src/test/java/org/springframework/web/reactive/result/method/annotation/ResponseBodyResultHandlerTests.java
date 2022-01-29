@@ -16,16 +16,8 @@
 
 package org.springframework.web.reactive.result.method.annotation;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
-import reactor.core.publisher.Mono;
-import rx.Completable;
-import rx.Single;
-
 import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
@@ -40,6 +32,13 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.HandlerResult;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuilder;
+import reactor.core.publisher.Mono;
+import rx.Completable;
+import rx.Single;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.method.ResolvableMethod.on;
@@ -57,106 +56,107 @@ import static org.springframework.web.method.ResolvableMethod.on;
  */
 public class ResponseBodyResultHandlerTests {
 
-	private ResponseBodyResultHandler resultHandler;
+    private ResponseBodyResultHandler resultHandler;
 
 
-	@Before
-	public void setup() throws Exception {
-		List<HttpMessageWriter<?>> writerList = new ArrayList<>(5);
-		writerList.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
-		writerList.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.allMimeTypes()));
-		writerList.add(new ResourceHttpMessageWriter());
-		writerList.add(new EncoderHttpMessageWriter<>(new Jaxb2XmlEncoder()));
-		writerList.add(new EncoderHttpMessageWriter<>(new Jackson2JsonEncoder()));
-		RequestedContentTypeResolver resolver = new RequestedContentTypeResolverBuilder().build();
-		this.resultHandler = new ResponseBodyResultHandler(writerList, resolver);
-	}
+    @Before
+    public void setup() throws Exception {
+        List<HttpMessageWriter<?>> writerList = new ArrayList<>(5);
+        writerList.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
+        writerList.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.allMimeTypes()));
+        writerList.add(new ResourceHttpMessageWriter());
+        writerList.add(new EncoderHttpMessageWriter<>(new Jaxb2XmlEncoder()));
+        writerList.add(new EncoderHttpMessageWriter<>(new Jackson2JsonEncoder()));
+        RequestedContentTypeResolver resolver = new RequestedContentTypeResolverBuilder().build();
+        this.resultHandler = new ResponseBodyResultHandler(writerList, resolver);
+    }
 
 
-	@Test
-	public void supports() {
-		Object controller = new TestController();
-		Method method;
+    @Test
+    public void supports() {
+        Object controller = new TestController();
+        Method method;
 
-		method = on(TestController.class).annotPresent(ResponseBody.class).resolveMethod();
-		testSupports(controller, method);
+        method = on(TestController.class).annotPresent(ResponseBody.class).resolveMethod();
+        testSupports(controller, method);
 
-		method = on(TestController.class).annotNotPresent(ResponseBody.class).resolveMethod("doWork");
-		HandlerResult handlerResult = getHandlerResult(controller, method);
-		assertThat(this.resultHandler.supports(handlerResult)).isFalse();
-	}
+        method = on(TestController.class).annotNotPresent(ResponseBody.class).resolveMethod("doWork");
+        HandlerResult handlerResult = getHandlerResult(controller, method);
+        assertThat(this.resultHandler.supports(handlerResult)).isFalse();
+    }
 
-	@Test
-	public void supportsRestController() {
-		Object controller = new TestRestController();
-		Method method;
+    @Test
+    public void supportsRestController() {
+        Object controller = new TestRestController();
+        Method method;
 
-		method = on(TestRestController.class).returning(String.class).resolveMethod();
-		testSupports(controller, method);
+        method = on(TestRestController.class).returning(String.class).resolveMethod();
+        testSupports(controller, method);
 
-		method = on(TestRestController.class).returning(Mono.class, String.class).resolveMethod();
-		testSupports(controller, method);
+        method = on(TestRestController.class).returning(Mono.class, String.class).resolveMethod();
+        testSupports(controller, method);
 
-		method = on(TestRestController.class).returning(Single.class, String.class).resolveMethod();
-		testSupports(controller, method);
+        method = on(TestRestController.class).returning(Single.class, String.class).resolveMethod();
+        testSupports(controller, method);
 
-		method = on(TestRestController.class).returning(Completable.class).resolveMethod();
-		testSupports(controller, method);
-	}
+        method = on(TestRestController.class).returning(Completable.class).resolveMethod();
+        testSupports(controller, method);
+    }
 
-	private void testSupports(Object controller, Method method) {
-		HandlerResult handlerResult = getHandlerResult(controller, method);
-		assertThat(this.resultHandler.supports(handlerResult)).isTrue();
-	}
+    private void testSupports(Object controller, Method method) {
+        HandlerResult handlerResult = getHandlerResult(controller, method);
+        assertThat(this.resultHandler.supports(handlerResult)).isTrue();
+    }
 
-	private HandlerResult getHandlerResult(Object controller, Method method) {
-		HandlerMethod handlerMethod = new HandlerMethod(controller, method);
-		return new HandlerResult(handlerMethod, null, handlerMethod.getReturnType());
-	}
+    private HandlerResult getHandlerResult(Object controller, Method method) {
+        HandlerMethod handlerMethod = new HandlerMethod(controller, method);
+        return new HandlerResult(handlerMethod, null, handlerMethod.getReturnType());
+    }
 
-	@Test
-	public void defaultOrder() {
-		assertThat(this.resultHandler.getOrder()).isEqualTo(100);
-	}
-
-
-
-	@RestController
-	@SuppressWarnings("unused")
-	private static class TestRestController {
-
-		public Mono<Void> handleToMonoVoid() { return null;}
-
-		public String handleToString() {
-			return null;
-		}
-
-		public Mono<String> handleToMonoString() {
-			return null;
-		}
-
-		public Single<String> handleToSingleString() {
-			return null;
-		}
-
-		public Completable handleToCompletable() {
-			return null;
-		}
-	}
+    @Test
+    public void defaultOrder() {
+        assertThat(this.resultHandler.getOrder()).isEqualTo(100);
+    }
 
 
-	@Controller
-	@SuppressWarnings("unused")
-	private static class TestController {
+    @RestController
+    @SuppressWarnings("unused")
+    private static class TestRestController {
 
-		@ResponseBody
-		public String handleToString() {
-			return null;
-		}
+        public Mono<Void> handleToMonoVoid() {
+            return null;
+        }
 
-		public String doWork() {
-			return null;
-		}
-	}
+        public String handleToString() {
+            return null;
+        }
+
+        public Mono<String> handleToMonoString() {
+            return null;
+        }
+
+        public Single<String> handleToSingleString() {
+            return null;
+        }
+
+        public Completable handleToCompletable() {
+            return null;
+        }
+    }
+
+
+    @Controller
+    @SuppressWarnings("unused")
+    private static class TestController {
+
+        @ResponseBody
+        public String handleToString() {
+            return null;
+        }
+
+        public String doWork() {
+            return null;
+        }
+    }
 
 }

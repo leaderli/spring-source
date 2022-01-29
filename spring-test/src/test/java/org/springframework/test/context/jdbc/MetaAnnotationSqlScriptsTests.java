@@ -16,14 +16,13 @@
 
 package org.springframework.test.context.jdbc;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import org.junit.Test;
-
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -40,33 +39,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class MetaAnnotationSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Test
-	@MetaSql
-	public void metaSqlAnnotation() {
-		assertNumUsers(1);
-	}
+    @Test
+    @MetaSql
+    public void metaSqlAnnotation() {
+        assertNumUsers(1);
+    }
 
-	@Test
-	@MetaSqlGroup
-	public void metaSqlGroupAnnotation() {
-		assertNumUsers(1);
-	}
+    @Test
+    @MetaSqlGroup
+    public void metaSqlGroupAnnotation() {
+        assertNumUsers(1);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+    protected void assertNumUsers(int expected) {
+        assertThat(countRowsInTable("user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+    }
 
 
-	@Sql({ "drop-schema.sql", "schema.sql", "data.sql" })
-	@Retention(RUNTIME)
-	@Target(METHOD)
-	static @interface MetaSql {
-	}
+    @Sql({"drop-schema.sql", "schema.sql", "data.sql"})
+    @Retention(RUNTIME)
+    @Target(METHOD)
+    static @interface MetaSql {
+    }
 
-	@SqlGroup({ @Sql("drop-schema.sql"), @Sql("schema.sql"), @Sql("data.sql") })
-	@Retention(RUNTIME)
-	@Target(METHOD)
-	static @interface MetaSqlGroup {
-	}
+    @SqlGroup({@Sql("drop-schema.sql"), @Sql("schema.sql"), @Sql("data.sql")})
+    @Retention(RUNTIME)
+    @Target(METHOD)
+    static @interface MetaSqlGroup {
+    }
 
 }

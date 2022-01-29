@@ -21,16 +21,11 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.junit.Test;
-
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ConfigurationClassPostProcessor;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.tests.sample.beans.TestBean;
@@ -53,113 +48,112 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ConfigurationClassAspectIntegrationTests {
 
-	@Test
-	public void aspectAnnotatedConfiguration() {
-		assertAdviceWasApplied(AspectConfig.class);
-	}
+    @Test
+    public void aspectAnnotatedConfiguration() {
+        assertAdviceWasApplied(AspectConfig.class);
+    }
 
-	@Test
-	public void configurationIncludesAspect() {
-		assertAdviceWasApplied(ConfigurationWithAspect.class);
-	}
+    @Test
+    public void configurationIncludesAspect() {
+        assertAdviceWasApplied(ConfigurationWithAspect.class);
+    }
 
-	private void assertAdviceWasApplied(Class<?> configClass) {
-		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-		new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
-				new ClassPathResource("aspectj-autoproxy-config.xml", ConfigurationClassAspectIntegrationTests.class));
-		GenericApplicationContext ctx = new GenericApplicationContext(factory);
-		ctx.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
-		ctx.registerBeanDefinition("config", new RootBeanDefinition(configClass));
-		ctx.refresh();
+    private void assertAdviceWasApplied(Class<?> configClass) {
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
+                new ClassPathResource("aspectj-autoproxy-config.xml", ConfigurationClassAspectIntegrationTests.class));
+        GenericApplicationContext ctx = new GenericApplicationContext(factory);
+        ctx.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
+        ctx.registerBeanDefinition("config", new RootBeanDefinition(configClass));
+        ctx.refresh();
 
-		TestBean testBean = ctx.getBean("testBean", TestBean.class);
-		assertThat(testBean.getName()).isEqualTo("name");
-		testBean.absquatulate();
-		assertThat(testBean.getName()).isEqualTo("advisedName");
-	}
+        TestBean testBean = ctx.getBean("testBean", TestBean.class);
+        assertThat(testBean.getName()).isEqualTo("name");
+        testBean.absquatulate();
+        assertThat(testBean.getName()).isEqualTo("advisedName");
+    }
 
-	@Test
-	public void withInnerClassAndLambdaExpression() {
-		ApplicationContext ctx = new AnnotationConfigApplicationContext(Application.class, CountingAspect.class);
-		ctx.getBeansOfType(Runnable.class).forEach((k, v) -> v.run());
+    @Test
+    public void withInnerClassAndLambdaExpression() {
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(Application.class, CountingAspect.class);
+        ctx.getBeansOfType(Runnable.class).forEach((k, v) -> v.run());
 
-		// TODO: returns just 1 as of AspectJ 1.9 beta 3, not detecting the applicable lambda expression anymore
-		// assertEquals(2, ctx.getBean(CountingAspect.class).count);
-	}
-
-
-	@Aspect
-	@Configuration
-	static class AspectConfig {
-
-		@Bean
-		public TestBean testBean() {
-			return new TestBean("name");
-		}
-
-		@Before("execution(* org.springframework.tests.sample.beans.TestBean.absquatulate(..)) && target(testBean)")
-		public void touchBean(TestBean testBean) {
-			testBean.setName("advisedName");
-		}
-	}
+        // TODO: returns just 1 as of AspectJ 1.9 beta 3, not detecting the applicable lambda expression anymore
+        // assertEquals(2, ctx.getBean(CountingAspect.class).count);
+    }
 
 
-	@Configuration
-	static class ConfigurationWithAspect {
+    @Aspect
+    @Configuration
+    static class AspectConfig {
 
-		@Bean
-		public TestBean testBean() {
-			return new TestBean("name");
-		}
+        @Bean
+        public TestBean testBean() {
+            return new TestBean("name");
+        }
 
-		@Bean
-		public NameChangingAspect nameChangingAspect() {
-			return new NameChangingAspect();
-		}
-	}
-
-
-	@Aspect
-	static class NameChangingAspect {
-
-		@Before("execution(* org.springframework.tests.sample.beans.TestBean.absquatulate(..)) && target(testBean)")
-		public void touchBean(TestBean testBean) {
-			testBean.setName("advisedName");
-		}
-	}
+        @Before("execution(* org.springframework.tests.sample.beans.TestBean.absquatulate(..)) && target(testBean)")
+        public void touchBean(TestBean testBean) {
+            testBean.setName("advisedName");
+        }
+    }
 
 
+    @Configuration
+    static class ConfigurationWithAspect {
 
-	@Configuration
-	@EnableAspectJAutoProxy
-	public static class Application {
+        @Bean
+        public TestBean testBean() {
+            return new TestBean("name");
+        }
 
-		@Bean
-		Runnable fromInnerClass() {
-			return new Runnable() {
-				@Override
-				public void run() {
-				}
-			};
-		}
-
-		@Bean
-		Runnable fromLambdaExpression() {
-			return () -> {
-			};
-		}
-	}
+        @Bean
+        public NameChangingAspect nameChangingAspect() {
+            return new NameChangingAspect();
+        }
+    }
 
 
-	@Aspect
-	public static class CountingAspect {
+    @Aspect
+    static class NameChangingAspect {
 
-		public int count = 0;
+        @Before("execution(* org.springframework.tests.sample.beans.TestBean.absquatulate(..)) && target(testBean)")
+        public void touchBean(TestBean testBean) {
+            testBean.setName("advisedName");
+        }
+    }
 
-		@After("execution(* java.lang.Runnable.*(..))")
-		public void after(JoinPoint joinPoint) {
-			count++;
-		}
-	}
+
+    @Configuration
+    @EnableAspectJAutoProxy
+    public static class Application {
+
+        @Bean
+        Runnable fromInnerClass() {
+            return new Runnable() {
+                @Override
+                public void run() {
+                }
+            };
+        }
+
+        @Bean
+        Runnable fromLambdaExpression() {
+            return () -> {
+            };
+        }
+    }
+
+
+    @Aspect
+    public static class CountingAspect {
+
+        public int count = 0;
+
+        @After("execution(* java.lang.Runnable.*(..))")
+        public void after(JoinPoint joinPoint) {
+            count++;
+        }
+    }
 
 }

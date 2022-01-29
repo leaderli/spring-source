@@ -16,14 +16,13 @@
 
 package org.springframework.web.socket.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.web.socket.WebSocketExtension;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,22 +34,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class WebSocketHttpHeadersTests {
 
-	private WebSocketHttpHeaders headers;
+    private WebSocketHttpHeaders headers;
 
-	@Before
-	public void setUp() {
-		headers = new WebSocketHttpHeaders();
-	}
+    @Before
+    public void setUp() {
+        headers = new WebSocketHttpHeaders();
+    }
 
-	@Test
-	public void parseWebSocketExtensions() {
-		List<String> extensions = new ArrayList<>();
-		extensions.add("x-foo-extension, x-bar-extension");
-		extensions.add("x-test-extension");
-		this.headers.put(WebSocketHttpHeaders.SEC_WEBSOCKET_EXTENSIONS, extensions);
+    @Test
+    public void parseWebSocketExtensions() {
+        List<String> extensions = new ArrayList<>();
+        extensions.add("x-foo-extension, x-bar-extension");
+        extensions.add("x-test-extension");
+        this.headers.put(WebSocketHttpHeaders.SEC_WEBSOCKET_EXTENSIONS, extensions);
 
-		List<WebSocketExtension> parsedExtensions = this.headers.getSecWebSocketExtensions();
-		assertThat(parsedExtensions).hasSize(3);
-	}
+        List<WebSocketExtension> parsedExtensions = this.headers.getSecWebSocketExtensions();
+        assertThat(parsedExtensions).hasSize(3);
+    }
 
 }

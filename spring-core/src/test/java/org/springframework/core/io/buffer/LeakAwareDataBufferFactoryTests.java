@@ -26,26 +26,25 @@ import static org.springframework.core.io.buffer.DataBufferUtils.release;
  */
 public class LeakAwareDataBufferFactoryTests {
 
-	private final LeakAwareDataBufferFactory bufferFactory = new LeakAwareDataBufferFactory();
+    private final LeakAwareDataBufferFactory bufferFactory = new LeakAwareDataBufferFactory();
 
 
-	@Test
-	public void leak() {
-		DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
-		try {
-			assertThatExceptionOfType(AssertionError.class).isThrownBy(
-					this.bufferFactory::checkForLeaks);
-		}
-		finally {
-			release(dataBuffer);
-		}
-	}
+    @Test
+    public void leak() {
+        DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
+        try {
+            assertThatExceptionOfType(AssertionError.class).isThrownBy(
+                    this.bufferFactory::checkForLeaks);
+        } finally {
+            release(dataBuffer);
+        }
+    }
 
-	@Test
-	public void noLeak() {
-		DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
-		release(dataBuffer);
-		this.bufferFactory.checkForLeaks();
-	}
+    @Test
+    public void noLeak() {
+        DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
+        release(dataBuffer);
+        this.bufferFactory.checkForLeaks();
+    }
 
 }

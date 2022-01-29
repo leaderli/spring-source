@@ -17,11 +17,10 @@
 package org.springframework.transaction.reactive;
 
 import org.junit.Test;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,49 +31,49 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TransactionalOperatorTests {
 
-	ReactiveTestTransactionManager tm = new ReactiveTestTransactionManager(false, true);
+    ReactiveTestTransactionManager tm = new ReactiveTestTransactionManager(false, true);
 
 
-	@Test
-	public void commitWithMono() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.just(true).as(operator::transactional)
-				.as(StepVerifier::create)
-				.expectNext(true)
-				.verifyComplete();
-		assertThat(tm.commit).isTrue();
-		assertThat(tm.rollback).isFalse();
-	}
+    @Test
+    public void commitWithMono() {
+        TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+        Mono.just(true).as(operator::transactional)
+                .as(StepVerifier::create)
+                .expectNext(true)
+                .verifyComplete();
+        assertThat(tm.commit).isTrue();
+        assertThat(tm.rollback).isFalse();
+    }
 
-	@Test
-	public void rollbackWithMono() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.error(new IllegalStateException()).as(operator::transactional)
-				.as(StepVerifier::create)
-				.verifyError(IllegalStateException.class);
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-	}
+    @Test
+    public void rollbackWithMono() {
+        TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+        Mono.error(new IllegalStateException()).as(operator::transactional)
+                .as(StepVerifier::create)
+                .verifyError(IllegalStateException.class);
+        assertThat(tm.commit).isFalse();
+        assertThat(tm.rollback).isTrue();
+    }
 
-	@Test
-	public void commitWithFlux() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Flux.just(1, 2, 3, 4).as(operator::transactional)
-				.as(StepVerifier::create)
-				.expectNextCount(4)
-				.verifyComplete();
-		assertThat(tm.commit).isTrue();
-		assertThat(tm.rollback).isFalse();
-	}
+    @Test
+    public void commitWithFlux() {
+        TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+        Flux.just(1, 2, 3, 4).as(operator::transactional)
+                .as(StepVerifier::create)
+                .expectNextCount(4)
+                .verifyComplete();
+        assertThat(tm.commit).isTrue();
+        assertThat(tm.rollback).isFalse();
+    }
 
-	@Test
-	public void rollbackWithFlux() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Flux.error(new IllegalStateException()).as(operator::transactional)
-				.as(StepVerifier::create)
-				.verifyError(IllegalStateException.class);
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-	}
+    @Test
+    public void rollbackWithFlux() {
+        TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+        Flux.error(new IllegalStateException()).as(operator::transactional)
+                .as(StepVerifier::create)
+                .verifyError(IllegalStateException.class);
+        assertThat(tm.commit).isFalse();
+        assertThat(tm.rollback).isTrue();
+    }
 
 }

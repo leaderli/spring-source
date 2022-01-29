@@ -17,7 +17,6 @@
 package org.springframework.jmx.export.assembler;
 
 import org.junit.Test;
-
 import org.springframework.jmx.JmxTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,14 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class AbstractAutodetectTests {
 
-	@Test
-	public void autodetect() throws Exception {
-		JmxTestBean bean = new JmxTestBean();
+    @Test
+    public void autodetect() throws Exception {
+        JmxTestBean bean = new JmxTestBean();
 
-		AutodetectCapableMBeanInfoAssembler assembler = getAssembler();
-		assertThat(assembler.includeBean(bean.getClass(), "testBean")).as("The bean should be included").isTrue();
-	}
+        AutodetectCapableMBeanInfoAssembler assembler = getAssembler();
+        assertThat(assembler.includeBean(bean.getClass(), "testBean")).as("The bean should be included").isTrue();
+    }
 
-	protected abstract AutodetectCapableMBeanInfoAssembler getAssembler();
+    protected abstract AutodetectCapableMBeanInfoAssembler getAssembler();
 
 }

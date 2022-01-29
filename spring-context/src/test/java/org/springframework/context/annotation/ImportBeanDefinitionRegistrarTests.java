@@ -16,13 +16,7 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.junit.Test;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
@@ -35,6 +29,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -46,63 +45,61 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ImportBeanDefinitionRegistrarTests {
 
-	@Test
-	public void shouldInvokeAwareMethodsInImportBeanDefinitionRegistrar() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-		context.getBean(MessageSource.class);
+    @Test
+    public void shouldInvokeAwareMethodsInImportBeanDefinitionRegistrar() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        context.getBean(MessageSource.class);
 
-		assertThat(SampleRegistrar.beanFactory).isEqualTo(context.getBeanFactory());
-		assertThat(SampleRegistrar.classLoader).isEqualTo(context.getBeanFactory().getBeanClassLoader());
-		assertThat(SampleRegistrar.resourceLoader).isNotNull();
-		assertThat(SampleRegistrar.environment).isEqualTo(context.getEnvironment());
-	}
-
-
-	@Sample
-	@Configuration
-	static class Config {
-	}
+        assertThat(SampleRegistrar.beanFactory).isEqualTo(context.getBeanFactory());
+        assertThat(SampleRegistrar.classLoader).isEqualTo(context.getBeanFactory().getBeanClassLoader());
+        assertThat(SampleRegistrar.resourceLoader).isNotNull();
+        assertThat(SampleRegistrar.environment).isEqualTo(context.getEnvironment());
+    }
 
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Import(SampleRegistrar.class)
-	public @interface Sample {
-	}
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Import(SampleRegistrar.class)
+    public @interface Sample {
+    }
 
+    @Sample
+    @Configuration
+    static class Config {
+    }
 
-	private static class SampleRegistrar implements ImportBeanDefinitionRegistrar,
-			BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+    private static class SampleRegistrar implements ImportBeanDefinitionRegistrar,
+            BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
-		static ClassLoader classLoader;
-		static ResourceLoader resourceLoader;
-		static BeanFactory beanFactory;
-		static Environment environment;
+        static ClassLoader classLoader;
+        static ResourceLoader resourceLoader;
+        static BeanFactory beanFactory;
+        static Environment environment;
 
-		@Override
-		public void setBeanClassLoader(ClassLoader classLoader) {
-			SampleRegistrar.classLoader = classLoader;
-		}
+        @Override
+        public void setBeanClassLoader(ClassLoader classLoader) {
+            SampleRegistrar.classLoader = classLoader;
+        }
 
-		@Override
-		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-			SampleRegistrar.beanFactory = beanFactory;
-		}
+        @Override
+        public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+            SampleRegistrar.beanFactory = beanFactory;
+        }
 
-		@Override
-		public void setResourceLoader(ResourceLoader resourceLoader) {
-			SampleRegistrar.resourceLoader = resourceLoader;
-		}
+        @Override
+        public void setResourceLoader(ResourceLoader resourceLoader) {
+            SampleRegistrar.resourceLoader = resourceLoader;
+        }
 
-		@Override
-		public void setEnvironment(Environment environment) {
-			SampleRegistrar.environment = environment;
-		}
+        @Override
+        public void setEnvironment(Environment environment) {
+            SampleRegistrar.environment = environment;
+        }
 
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-				BeanDefinitionRegistry registry) {
-		}
-	}
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+                                            BeanDefinitionRegistry registry) {
+        }
+    }
 
 }
